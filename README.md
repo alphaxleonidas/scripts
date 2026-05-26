@@ -38,6 +38,8 @@
 
 ## [X/Twitter-to-Nitter](https://github.com/alphaxleonidas/Twitter-to-Nitter/raw/refs/heads/main/twitter-to-nitter.user.js)
 
+## [Tiktok-to-UrleBird](https://www.github.com/alphaxleonidas/TikTok-to-Urlebird/raw/refs/heads/main/tiktok-to-urlebird.user.js)
+
 
 # Bypass Scripts:
 
