@@ -33,6 +33,9 @@
 ## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)
 
 
+## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
+
+
 # Social Media Redirects:
 
 
