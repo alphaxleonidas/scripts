@@ -33,6 +33,9 @@
 ## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)
 
 
+## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)
+
+
 ## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
 
 
@@ -76,7 +79,9 @@
 
 ## [Yuumari](https://api.yuumari.com/dl/m-links.user.js)
 
+
 ## [Invidious Embed](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/invidious-embed.user.js)
+
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
 
