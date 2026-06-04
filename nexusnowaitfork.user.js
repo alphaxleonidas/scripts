@@ -16,9 +16,13 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_info
 // @connect      nexusmods.com
-// @downloadURL https://update.greasyfork.org/scripts/564332/Nexus%20No%20Wait%20%2B%2B%20%28Fork%29.user.js
-// @updateURL https://update.greasyfork.org/scripts/564332/Nexus%20No%20Wait%20%2B%2B%20%28Fork%29.meta.js
+// @downloadURL https://raw.githubusercontent.com/alphaxleonidas/Scripts/main/nexusnowaitfork.user.js
+// @updateURL https://raw.githubusercontent.com/alphaxleonidas/Scripts/main/nexusnowaitfork.user.js
 // ==/UserScript==
+
+
+// backup: @downloadURL https://update.greasyfork.org/scripts/564332/Nexus%20No%20Wait%20%2B%2B%20%28Fork%29.user.js
+// backup: @updateURL https://update.greasyfork.org/scripts/564332/Nexus%20No%20Wait%20%2B%2B%20%28Fork%29.meta.js
 
 (function () {
   'use strict'
