@@ -39,17 +39,6 @@
 ## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
 
 
-# Social Media Redirects:
-
-
-## [Instagram-to-Imginn](https://github.com/alphaxleonidas/Instagram-to-Imginn/raw/refs/heads/main/insta-to-imginn.user.js)
-
-
-## [X/Twitter-to-Nitter](https://github.com/alphaxleonidas/Twitter-to-Nitter/raw/refs/heads/main/twitter-to-nitter.user.js)
-
-
-## [Tiktok-to-UrleBird](https://www.github.com/alphaxleonidas/TikTok-to-Urlebird/raw/refs/heads/main/tiktok-to-urlebird.user.js)
-
 
 # Bypass Scripts:
 
@@ -64,7 +53,6 @@
 
 
 ## [RIP Linkvertise](https://trw.lat/install/userscript/u.user.js)
-
 
 
 ## [BypassCity](https://trw.lat/install/userscript/u.user.js)
@@ -82,9 +70,24 @@
 
 ## [Invidious Embed](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/invidious-embed.user.js)
 
+
+
+# Social Media Redirects:
+
+## [Instagram-to-Imginn](https://github.com/alphaxleonidas/Instagram-to-Imginn/raw/refs/heads/main/insta-to-imginn.user.js)
+
+
+## [X/Twitter-to-Nitter](https://github.com/alphaxleonidas/Twitter-to-Nitter/raw/refs/heads/main/twitter-to-nitter.user.js)
+
+
+## [Tiktok-to-UrleBird](https://www.github.com/alphaxleonidas/TikTok-to-Urlebird/raw/refs/heads/main/tiktok-to-urlebird.user.js)
+
+
+
 # Browser Tweaks
 
 ## [[Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
+
 
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
