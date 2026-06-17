@@ -82,6 +82,10 @@
 
 ## [Invidious Embed](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/invidious-embed.user.js)
 
+# Browser Tweaks
+
+## [[Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
+
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
 
