@@ -86,7 +86,7 @@
 
 # Browser Tweaks
 
-## [[Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
+## [Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
 
 
 
