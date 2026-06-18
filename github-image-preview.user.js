@@ -13,7 +13,7 @@
 // @grant       GM_xmlhttpRequest
 // @connect     github.com
 // @connect     githubusercontent.com
-// @require     https://www.github.com/alphaxleonidas/scripts/raw/ref/main/mutations.user.js
+// @require     https://raw.githubusercontent.com/alphaxleonidas/scripts/main/mutations.user.js
 // @icon        https://github.githubassets.com/pinned-octocat.svg
 // @updateURL   https://raw.githubusercontent.com/Mottie/GitHub-userscripts/master/github-image-preview.user.js
 // @downloadURL https://raw.githubusercontent.com/Mottie/GitHub-userscripts/master/github-image-preview.user.js
