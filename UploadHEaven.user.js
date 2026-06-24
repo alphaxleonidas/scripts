@@ -5,6 +5,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.4
 // @description  Bypasses Uploadhaven time restriction.
+// @updateURL    https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @downloadURL  https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
 // @author       crapbass#8715
 // @match      https://uploadhaven.com/download/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=uploadhaven.com
