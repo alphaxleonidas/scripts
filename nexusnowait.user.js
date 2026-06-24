@@ -3,8 +3,8 @@
 // @description Skip Countdown, Auto Download, and More for Nexus Mods. Supports (Manual/Vortex/MO2/NMM)
 // @version     2.1.6
 // @namespace   NexusNoWaitPlusPlus
-// @updateURL    https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
-// @downloadURL  https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @updateURL    https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js
+// @downloadURL  https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js
 // @author      Torkelicious
 // @iconURL     https://raw.githubusercontent.com/torkelicious/nexus-no-wait-pp/refs/heads/main/icon.png
 // @icon        https://raw.githubusercontent.com/torkelicious/nexus-no-wait-pp/refs/heads/main/icon.png
