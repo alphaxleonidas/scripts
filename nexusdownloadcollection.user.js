@@ -6,6 +6,9 @@
 // @author       Drigtime
 // @match        https://www.nexusmods.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=nexusmods.com
+// @updateURL    https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @downloadURL  https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @author       Leonidas
 // @compatible   chrome
 // @compatible   edge
 // @compatible   firefox
