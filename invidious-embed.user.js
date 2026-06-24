@@ -1,6 +1,8 @@
 // ==UserScript==
 // @name        Invidious (inv.nadeko.net) embed
 // @description Replace YouTube embeds with inv.nadeko.net embeds.
+// @updateURL    https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @downloadURL  https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
 // @author      Backend & SkauOfArcadia
 // @homepage    https://codeberg.org/mthsk/userscripts/src/branch/master/invidious-embed
 // @include     *
