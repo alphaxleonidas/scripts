@@ -7,8 +7,8 @@
 // @description:en  it can hook the timer speed to change.
 // @include         *
 // @require         https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/Everything-Hook.user.js
-// @updateURL    https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
-// @downloadURL  https://github.com/alphaxleonidas/redirect-scripts/raw/refs/heads/main/medium-to-readmedium.user.js
+// @updateURL       https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/timehooker.user.js
+// @downloadURL     https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/timehooker.user.js
 // @author          Leonidas
 // @match           http://*/*
 // @run-at          document-start
