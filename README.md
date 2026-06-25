@@ -76,7 +76,7 @@
 
 ## [Github Image Preview](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/github-image-preview.user.js)
 
-
+# Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
 
