@@ -24,16 +24,16 @@
 ## [UploadHEaven](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/UploadHEaven.user.js)
 
 
-## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)
+## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
 
 
-## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusdownloadcollection.user.js)
+## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusdownloadcollection.user.js) [Original [GreasyFork](https://greasyfork.org/en/scripts/483337-nexus-download-collection) Link]
 
 
-## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)
+## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
 
 
-## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)
+## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
 
 
 ## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
