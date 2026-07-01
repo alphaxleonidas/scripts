@@ -32,7 +32,7 @@
 ## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
 
 
-## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
+## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
 
 
 ## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
