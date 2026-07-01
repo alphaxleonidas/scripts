@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Discord VirusTotal Link Scanner
 // @namespace    https://example.com/
-// @version      1.7
+// @version      1.8
 // @description  Scan only Discord message links with VirusTotal and show scan status
 // @match        https://discord.com/*
 // @run-at       document-start
@@ -105,7 +105,7 @@
     toast.id = id;
     toast.style.cssText = `
       position: fixed;
-      top: 16px;
+      top: 84px;
       right: 16px;
       width: 320px;
       padding: 12px 14px;
