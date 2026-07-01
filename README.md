@@ -20,7 +20,7 @@
 
 # One Click Installations: 
 
-
+## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
 
 ## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
