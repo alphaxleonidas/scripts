@@ -21,7 +21,6 @@
 # One Click Installations: 
 
 
-## [UploadHEaven](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/UploadHEaven.user.js)
 
 
 ## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
