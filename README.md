@@ -35,9 +35,6 @@
 ## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
 
 
-## [Simple YouTube Age Restriction Bypass](https://github.com/TheDoctor200/Simple-YouTube-Age-Restriction-Bypass/raw/main/dist/Simple-YouTube-Age-Restriction-Bypass.user.js)
-
-
 
 # Bypass Scripts:
 
