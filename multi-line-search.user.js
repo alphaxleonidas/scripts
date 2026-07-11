@@ -15,7 +15,7 @@
 
   // Create floating button
   const btn = document.createElement('button');
-  btn.textContent = '🔍 Search lines';
+  btn.textContent = '🔍';
   btn.style.position = 'fixed';
   btn.style.bottom = '20px';
   btn.style.right = '20px';
@@ -43,9 +43,9 @@
       return;
     }
 
-    // Open each line as a Google search in a new tab
+    // Open each line as a DuckDuckGo search in a new tab
     lines.forEach((line, i) => {
-      const url = 'https://www.google.com/search?q=' + encodeURIComponent(line);
+      const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line);
       // Small delay to avoid browser throttling too many tabs at once
       setTimeout(() => {
         GM_openInTab(url, { active: i === 0, setParent: true });
