@@ -73,23 +73,23 @@
 ## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
 
 
-## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusdownloadcollection.user.js) [Original [GreasyFork](https://greasyfork.org/en/scripts/483337-nexus-download-collection) Link]
+## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/nexusdownloadcollection.user.js) [Original [GreasyFork](https://greasyfork.org/en/scripts/483337-nexus-download-collection) Link]
 
 
-## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
+## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
 
 
-## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
+## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
 
 
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
 
-## [TimeHooker](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/timehooker.user.js)     [Original [GreasyFork](https://greasyfork.org/en/scripts/372673) Link]
+## [TimeHooker](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/timehooker.user.js)     [Original [GreasyFork](https://greasyfork.org/en/scripts/372673) Link]
 
       Requires: Everything-Hook
 
-## [Everything-Hook](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/Everything-Hook.user.js)   
+## [Everything-Hook](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/Everything-Hook.user.js)   
 
 
 
