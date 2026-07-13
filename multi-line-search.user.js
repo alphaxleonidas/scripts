@@ -3,8 +3,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Select multiple lines of text, then use the "Search lines" button to open each line in a new tab (Google search).
-// @author       You
-// @match        *://*/*
+// @author       Leonidas
+// @match        *://www.youtube.com/*
 // @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
 // @run-at       document-end
