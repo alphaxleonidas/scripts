@@ -45,7 +45,7 @@
 
     // Open each line as a DuckDuckGo search in a new tab
     lines.forEach((line, i) => {
-      const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line);
+      const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line + ' steam');
       // Small delay to avoid browser throttling too many tabs at once
       setTimeout(() => {
         GM_openInTab(url, { active: i === 0, setParent: true });
