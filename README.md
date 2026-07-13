@@ -28,10 +28,11 @@
 
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
+## [Multi Line Search](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js)
+
+
 
 # Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
-
-
 
 
 
