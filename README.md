@@ -20,19 +20,18 @@
 
 # One Click Installations: 
 
+# Browser Tweaks
+
+## [Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
+
+## [Github Image Preview](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/github-image-preview.user.js)
+
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
 
-## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
+# Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
 
 
-## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusdownloadcollection.user.js) [Original [GreasyFork](https://greasyfork.org/en/scripts/483337-nexus-download-collection) Link]
-
-
-## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
-
-
-## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
 
 
 
@@ -66,21 +65,31 @@
 
 ## [Invidious Embed](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/invidious-embed.user.js)
 
-# Browser Tweaks
 
-## [Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
 
-## [Github Image Preview](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/github-image-preview.user.js)
+# GitHub Backup of GreasyFork Scripts
 
-# Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
+
+## [Bypassfreedlinkcountdown](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js)    [Original [GreasyFork](https://greasyfork.org/en/scripts/522735-bypass-freedlink-countdown) Link]
+
+
+## [NexusDownloadCollection](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusdownloadcollection.user.js) [Original [GreasyFork](https://greasyfork.org/en/scripts/483337-nexus-download-collection) Link]
+
+
+## [NexusNoWait](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowait.user.js)  [Original [GreasyFork](https://greasyfork.org/en/scripts/519037-nexus-no-wait) Link]
+
+
+## [NexusNoWaitFork](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/nexusnowaitfork.user.js)    [Original [GitHub](https://github.com/torkelicious/nexus-no-wait-pp/) Link]
+
+
 
 # WARNING: FOLLOWING USERSCRIPTS CAN BREAK WEBSITES
 
-## [TimeHooker](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/timehooker.user.js) 
+## [TimeHooker](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/timehooker.user.js)     [Original [GreasyFork](https://greasyfork.org/en/scripts/372673) Link]
 
       Requires: Everything-Hook
 
-## [Everything-Hook](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/Everything-Hook.user.js)
+## [Everything-Hook](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/Everything-Hook.user.js)   
 
 
 
