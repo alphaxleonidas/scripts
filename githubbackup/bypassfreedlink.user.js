@@ -15,8 +15,8 @@
 // @match       https://fredl.*/*
 // @version     1.4.3
 // @license     MIT
-// @updateURL    https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js
-// @downloadURL  https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/bypassfreedlink.user.js
+// @updateURL    https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/bypassfreedlink.user.js
+// @downloadURL  https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/bypassfreedlink.user.js
 // @author      Luka Mamukashvili <mamukashvili.luka@usltd.ge>
 // ==/UserScript==
 
