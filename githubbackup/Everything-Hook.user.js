@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Everything-Hook
 // @namespace    https://gitee.com/HGJing/everthing-hook/
-// @updateURL    https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/Everything-Hook.user.js
+// @updateURL    https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/githubbackup/Everything-Hook.user.js
 // @version      0.5.9056
 // @include      *
 // @description  it can hook everything
