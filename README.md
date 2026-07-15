@@ -28,7 +28,7 @@
 
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
-## [Multi Line Search](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js)
+## [Multi Line Search YouTube](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js)
 
 # Search Engines Scripts
 
