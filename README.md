@@ -30,6 +30,13 @@
 
 ## [Multi Line Search](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js)
 
+# Search Engines Scripts
+
+## [Chatgpt](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/chatgpt-search-engine.user.js)
+
+## [Gemini](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/gemini-search-engine.user.js)
+
+## [SearchURLs](www.github.com/alphaxleonidas/Scripts/tree/main/searchenginelist.md)
 
 
 # Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
