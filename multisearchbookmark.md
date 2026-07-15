@@ -221,7 +221,9 @@ javascript:(function(){
   footer.appendChild(savePrefsBtn);
   footer.appendChild(searchBtn);
   container.appendChild(footer);
-```
+
   document.body.appendChild(container);
   input.focus();
 })();
+
+```
