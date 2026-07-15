@@ -1,4 +1,4 @@
-
+Add this to the URL in Browser Bookmark:
 ```
 javascript:(function(){
   const STORAGE_KEY = 'multi_ai_search_prefs';
