@@ -36,8 +36,9 @@
 
 ## [Gemini](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/gemini-search-engine.user.js)
 
-## [SearchURLs](www.github.com/alphaxleonidas/Scripts/tree/main/searchenginelist.md)
+## [SearchEngineList](https://www.github.com/alphaxleonidas/Scripts/tree/main/searchenginelist.md)
 
+## [Multi Search Bookmark](https://www.github.com/alphaxleonidas/Scripts/tree/main/multisearchbookmark.md)
 
 # Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
 
