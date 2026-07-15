@@ -1,6 +1,8 @@
 ## ChatGPT:
 ```
 https://chatgpt.com/?q=%s
+```
+```
 https://chatgpt.com/?prompt=%s
 ```
 ## Google Gemini:
