@@ -42,6 +42,6 @@
 
 # Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
 
-# Bypass Scripts [[Link](https://github.com/alphaxleonidas/bypass-scripts)
+# Bypass Scripts [[Link](https://github.com/alphaxleonidas/bypass-scripts)]
 
 
