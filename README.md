@@ -22,9 +22,6 @@
 
 # Browser Tweaks
 
-## [Twitch-Vertical-for-PC](https://github.com/alphaxleonidas/twitch-vertical-for-pc/raw/refs/heads/main/twitch-mobile-switcher.user.js)
-
-## [Github Image Preview](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/github-image-preview.user.js)
 
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
