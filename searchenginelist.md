@@ -21,8 +21,10 @@ https://www.google.com/search?udm=50&q=%s
 ```
 https://www.perplexity.ai/search?q=%s
 ```
-
-
+## VirusTotal
+```
+https://www.virustotal.com/gui/search?query=%s
+```
 
 ## Copilot (Sign-up required)
 ```
