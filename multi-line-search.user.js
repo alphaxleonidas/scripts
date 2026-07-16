@@ -95,6 +95,7 @@
 
     // Open each line as a DuckDuckGo search (adding " steam") in a new tab
     lines.forEach((line, i) => {
+      // Edit this line to change the search query:
       const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line + ' steam');
       setTimeout(() => {
         GM_openInTab(url, { active: i === 0, setParent: true });
