@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Search Each Line in New Tab
 // @namespace    http://tampermonkey.net/
-// @version      1.2
-// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme.
+// @version      1.4
+// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme. Cleans timestamps and list numbering from selected text.
 // @author       Leonidas
 // @match        *://www.youtube.com/*
 // @grant        GM_openInTab
@@ -53,6 +53,28 @@
   btn.textContent = '🔍';
   document.documentElement.appendChild(btn);
 
+  // --- Text cleaning function (robust) ---
+  function cleanLine(line) {
+    let cleaned = line;
+
+    // 1. Remove timestamps like 01:12, 1:23:45, etc.
+    cleaned = cleaned.replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, '');
+
+    // 2. Repeatedly strip leading enumeration patterns like "12 - ", "12.", "12)", "12: "
+    //    Also handles leftover separators (dashes, spaces, dots) before the number.
+    let previous;
+    do {
+      previous = cleaned;
+      cleaned = cleaned.replace(/^[\s-–—.]*\d+\s*[-–—.:)]\s*/, '');
+    } while (cleaned !== previous);
+
+    // 3. Trim any remaining leading/trailing separators and whitespace
+    cleaned = cleaned.replace(/^[-–—.\s]+/, '');
+    cleaned = cleaned.replace(/[-–—.\s]+$/, '');
+
+    return cleaned.trim();
+  }
+
   // --- Click logic ---
   btn.addEventListener('click', () => {
     const selection = window.getSelection();
@@ -62,9 +84,12 @@
       return;
     }
 
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    let lines = text.split(/\r?\n/)
+      .map(l => cleanLine(l))
+      .filter(l => l.length > 0);
+
     if (lines.length === 0) {
-      alert('No non-empty lines found in selection.');
+      alert('No text remaining after cleaning.');
       return;
     }
 
