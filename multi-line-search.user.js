@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Search Each Line in New Tab
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Select multiple lines of text, then use the "Search lines" button to open each line in a new tab (Google search).
+// @version      1.2
+// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme.
 // @author       Leonidas
 // @match        *://www.youtube.com/*
 // @grant        GM_openInTab
@@ -13,22 +13,47 @@
 (function () {
   'use strict';
 
-  // Create floating button
+  // Stop if we're inside an embedded player (iframe)
+  if (window.top !== window.self) return;
+
+  // --- Theme‑adaptive styles ---
+  const style = document.createElement('style');
+  style.textContent = `
+    #search-lines-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999999;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font: 14px sans-serif;
+      border: 1px solid;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      /* Light theme (default) */
+      background: rgba(255, 255, 255, 0.85);
+      color: #000;
+      border-color: #ccc;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #search-lines-btn {
+        background: rgba(40, 40, 40, 0.9);
+        color: #eee;
+        border-color: #555;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // --- Create the button ---
   const btn = document.createElement('button');
+  btn.id = 'search-lines-btn';
   btn.textContent = '🔍';
-  btn.style.position = 'fixed';
-  btn.style.bottom = '20px';
-  btn.style.right = '20px';
-  btn.style.zIndex = '999999';
-  btn.style.padding = '8px 12px';
-  btn.style.borderRadius = '6px';
-  btn.style.border = '1px solid #ccc';
-  btn.style.background = '#fff';
-  btn.style.cursor = 'pointer';
-  btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-  btn.style.font = '14px sans-serif';
   document.documentElement.appendChild(btn);
 
+  // --- Click logic ---
   btn.addEventListener('click', () => {
     const selection = window.getSelection();
     const text = selection ? selection.toString().trim() : '';
@@ -43,17 +68,16 @@
       return;
     }
 
-    // Open each line as a DuckDuckGo search in a new tab
+    // Open each line as a DuckDuckGo search (adding " steam") in a new tab
     lines.forEach((line, i) => {
       const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line + ' steam');
-      // Small delay to avoid browser throttling too many tabs at once
       setTimeout(() => {
         GM_openInTab(url, { active: i === 0, setParent: true });
       }, i * 150);
     });
   });
 
-  // Optional: register a menu command in Tampermonkey/Greasemonkey
+  // Optional Tampermonkey menu command
   GM_registerMenuCommand('Search selected lines in new tabs', () => {
     btn.click();
   });
