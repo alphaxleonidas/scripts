@@ -27,7 +27,9 @@
 
 ## [Multi Line Search YouTube](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js)
 
-## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js)
+## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
+
+## [Twitch Tweaks](https://github.com/mirbyte/TwitchTV-Userscripts)
 
 # Search Engines Scripts
 
