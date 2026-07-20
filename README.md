@@ -31,6 +31,14 @@
 
 ## [Twitch Tweaks](https://github.com/mirbyte/TwitchTV-Userscripts)
 
+## [Amazon Prime Pop-up Remover](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Amazon%20Prime%20Pop-up%20Remover.js#.user.js)
+
+## [Frontpage Autoplay Off](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Frontpage%20Autoplay%20Off.js#.user.js)
+
+## [Prime Notifications Remover](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Prime%20Notifications%20Remover.js#.user.js)
+
+## [Turbo Subscription Button Remover](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Turbo%20Subscription%20Button%20Remover.js#.user.js)
+
 # Search Engines Scripts
 
 ## [Chatgpt](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/chatgpt-search-engine.user.js)
