@@ -26,7 +26,6 @@
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
 ## [Multi Line Search YouTube](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js) 
-`Can not work on a new tab`
 
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 
@@ -41,6 +40,7 @@
 ## [SearchEngineList](https://www.github.com/alphaxleonidas/Scripts/tree/main/searchenginelist.md)
 
 ## [Multi Search Bookmark](https://www.github.com/alphaxleonidas/Scripts/tree/main/multisearchbookmark.md)
+`Can not work on a new tab`
 
 # Redirect Scripts [[Link](https://github.com/alphaxleonidas/redirect-scripts)]
 
