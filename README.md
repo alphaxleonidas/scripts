@@ -29,6 +29,8 @@
 
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 
+## Twitch Userscripts
+
 ## [Twitch Tweaks](https://github.com/mirbyte/TwitchTV-Userscripts)
 
 ## [Amazon Prime Pop-up Remover](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Amazon%20Prime%20Pop-up%20Remover.js#.user.js)
