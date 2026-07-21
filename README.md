@@ -29,6 +29,8 @@
 
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 
+## [Steam IGN Rating](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steamignrating.user.js)
+
 ## Twitch Userscripts
 
 ## [Twitch Tweaks](https://github.com/mirbyte/TwitchTV-Userscripts)
