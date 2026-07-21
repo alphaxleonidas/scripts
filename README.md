@@ -29,7 +29,7 @@
 
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 
-## [Steam IGN Rating](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steamignrating.user.js)
+## [Steam & Epic IGN Rating](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steamignrating.user.js)
 
 ## Twitch Userscripts
 
