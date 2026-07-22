@@ -2,10 +2,10 @@
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
-// @description  Displays IGN review score and user ratings on Steam and Epic Games Store pages with clickable header and smart fallback slug logic.
+// @description  Displays IGN review score and user ratings on Steam and Epic Games Store with unified layout styling (scores above labels).
 // @author       Leonidas
-// @match        https://store.steampowered.com/app/*
-// @match        https://store.epicgames.com/*
+// @match        *://*.steampowered.com/*
+// @match        *://*.epicgames.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      www.ign.com
 // @connect      ign.com
@@ -28,13 +28,11 @@
             .replace(/[^a-z0-9\s-&]/gi, '')
             .trim();
 
-        // Primary slug with "and"
         const primarySlug = baseTitle
             .replace(/&/g, 'and')
             .replace(/\s+/g, '-')
             .toLowerCase();
 
-        // Secondary fallback slug removing "&" completely
         const secondarySlug = baseTitle
             .replace(/&/g, '')
             .replace(/\s+/g, '-')
@@ -43,15 +41,16 @@
         return { primarySlug, secondarySlug };
     }
 
-    // 2. Extract Game Title based on current Store
+    // 2. Extract Game Title
     function getGameTitle() {
         if (IS_STEAM) {
-            const titleEl = document.getElementById('appHubAppName');
+            const titleEl = document.getElementById('appHubAppName') || 
+                            document.querySelector('.page_title_area .apphub_AppName') || 
+                            document.querySelector('.page_content .stats_count_desc');
             return titleEl ? titleEl.textContent.trim() : null;
         }
 
         if (IS_EPIC) {
-            // Target Epic Games main title heading or metadata title
             const h1El = document.querySelector('h1') || document.querySelector('[data-testid="pdp-title"]');
             if (h1El) return h1El.textContent.trim();
         }
@@ -64,14 +63,16 @@
         return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // 3. Find injection point depending on store platform
+    // 3. Find injection point
     function getTargetContainer() {
         if (IS_STEAM) {
-            return document.querySelector('.user_reviews') || document.querySelector('.glance_ctn');
+            return document.querySelector('.user_reviews') || 
+                   document.querySelector('.glance_ctn') || 
+                   document.querySelector('.game_title_area') || 
+                   document.querySelector('.app_header_content');
         }
 
         if (IS_EPIC) {
-            // Inject near Epic's sidebar metadata/pricing actions block
             return document.querySelector('[data-testid="purchase-cta-layout"]') ||
                    document.querySelector('aside') ||
                    document.querySelector('[role="main"]');
@@ -80,7 +81,7 @@
         return null;
     }
 
-    // 4. Render UI Badge
+    // 4. Render UI Badge (Numbers on top, Labels underneath)
     function renderRatingBadge(ignScore, userScore, ignUrl) {
         const targetContainer = getTargetContainer();
         if (!targetContainer) return;
@@ -91,49 +92,56 @@
         const badgeCtn = document.createElement('div');
         badgeCtn.className = 'ign_rating_row';
 
-        // Custom styling adjustments per store theme
+        const isEpic = IS_EPIC;
         badgeCtn.style.cssText = `
             margin-top: 12px;
             margin-bottom: 12px;
-            padding: 10px 12px;
-            background: ${IS_EPIC ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.35)'};
+            padding: ${isEpic ? '8px 10px' : '10px 14px'};
+            background: ${isEpic ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.35)'};
             border-radius: 4px;
             border-left: 4px solid #bf1313;
-            font-family: ${IS_EPIC ? 'sans-serif' : '"Motiva Sans", sans-serif'};
+            font-family: ${isEpic ? 'sans-serif' : '"Motiva Sans", sans-serif'};
             width: 100%;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: ${isEpic ? 'space-around' : 'flex-start'};
+            gap: ${isEpic ? '8px' : '18px'};
         `;
 
         badgeCtn.innerHTML = `
-            <!-- Clickable Header Link -->
-            <div style="margin-bottom: 8px;">
+            <!-- Column 1: IGN Header Link -->
+            <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
                 <a href="${encodeURI(ignUrl)}" target="_blank" rel="noopener noreferrer" style="
                     font-weight: bold;
                     color: #ff3e3e;
-                    font-size: 11px;
+                    font-size: ${isEpic ? '11px' : '12px'};
                     letter-spacing: 0.8px;
                     text-transform: uppercase;
                     text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 4px;
+                    white-space: nowrap;
                     transition: color 0.2s ease;
                 " onmouseover="this.style.color='#ff6b6b'" onmouseout="this.style.color='#ff3e3e'">
                     IGN Ratings ↗
                 </a>
             </div>
 
-            <!-- Ratings Container -->
-            <div style="display: flex; gap: 20px; align-items: center; justify-content: flex-start; padding-top: 2px;">
-                <div style="text-align: center; min-width: 70px;">
-                    <div style="font-size: 20px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</div>
-                    <div style="font-size: 10px; color: #8f98a0; margin-top: 4px; text-transform: uppercase;">IGN Score</div>
-                </div>
-                <div style="border-left: 1px solid #3d4450; height: 28px;"></div>
-                <div style="text-align: center; min-width: 70px;">
-                    <div style="font-size: 20px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</div>
-                    <div style="font-size: 10px; color: #8f98a0; margin-top: 4px; text-transform: uppercase;">User Rating</div>
-                </div>
+            <!-- Vertical Separator -->
+            <div style="border-left: 1px solid #3d4450; height: ${isEpic ? '26px' : '30px'};"></div>
+
+            <!-- Column 2: IGN Score (Number top, Label bottom) -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: ${isEpic ? '16px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</span>
+                <span style="font-size: ${isEpic ? '9px' : '10px'}; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">IGN Score</span>
+            </div>
+
+            <!-- Vertical Separator -->
+            <div style="border-left: 1px solid #3d4450; height: ${isEpic ? '26px' : '30px'};"></div>
+
+            <!-- Column 3: User Rating (Number top, Label bottom) -->
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size: ${isEpic ? '16px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</span>
+                <span style="font-size: ${isEpic ? '9px' : '10px'}; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">User Rating</span>
             </div>
         `;
 
@@ -144,7 +152,7 @@
         }
     }
 
-    // 5. Fetch and Parse IGN Game Page with Automatic Fallback
+    // 5. Fetch and Parse IGN Game Page
     function fetchIGNRatings(gameTitle) {
         const { primarySlug, secondarySlug } = createIgnSlugs(gameTitle);
         const primaryUrl = `https://www.ign.com/games/${primarySlug}`;
@@ -168,14 +176,13 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
 
-                    // --- Extract IGN Editor Score ---
+                    // Extraction Logic
                     let ignScore = 'N/A';
                     const ignScoreWrapper = doc.querySelector('[data-cy="review-score-hexagon-content-wrapper"] figcaption');
                     if (ignScoreWrapper) {
                         ignScore = ignScoreWrapper.textContent.trim();
                     }
 
-                    // --- Extract User Rating ---
                     let userScore = 'N/A';
                     const userReviewsLink = doc.querySelector('a[href*="/user-reviews"]');
                     if (userReviewsLink) {
@@ -215,7 +222,7 @@
         requestPage(primaryUrl);
     }
 
-    // Dynamic Observer execution (vital for Epic Games Store client routing)
+    // Dynamic Observer execution
     function init() {
         const title = getGameTitle();
         if (title && !document.querySelector('.ign_rating_row')) {
@@ -223,10 +230,8 @@
         }
     }
 
-    // Initial Trigger
     init();
 
-    // Epic relies heavily on SPA dynamic client-side rendering
     const observer = new MutationObserver(() => {
         init();
     });
