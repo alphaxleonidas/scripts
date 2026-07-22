@@ -34,7 +34,7 @@ https://copilot.microsoft.com/?q=%s
 https://copilot.microsoft.com/?q=%s
 ```
 
-## Youglish
+## YouGlish
 ```
 https://youglish.com/pronounce/%s/english
 ```
