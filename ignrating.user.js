@@ -2,7 +2,7 @@
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
-// @description  Displays IGN review score and user ratings on Steam and Epic Games Store with unified layout styling (scores above labels).
+// @description  Displays IGN review score and user ratings on Steam and Epic Games Store with unified layout styling and smart multi-slug fallback.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -18,9 +18,9 @@
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
-    // 1. Clean title and generate IGN URL slugs
+    // 1. Clean title and generate IGN URL slugs (with acronym/prefix fallback)
     function createIgnSlugs(title) {
-        const baseTitle = title
+        const cleaned = title
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/\b(ultimate|deluxe|game of the year|goty|standard|digital deluxe|complete|enhanced|remastered)\s*edition\b/gi, '')
@@ -28,17 +28,19 @@
             .replace(/[^a-z0-9\s-&]/gi, '')
             .trim();
 
-        const primarySlug = baseTitle
-            .replace(/&/g, 'and')
-            .replace(/\s+/g, '-')
-            .toLowerCase();
+        const makeSlug = (str) => str.replace(/\s+/g, '-').toLowerCase();
 
-        const secondarySlug = baseTitle
-            .replace(/&/g, '')
-            .replace(/\s+/g, '-')
-            .toLowerCase();
+        // Standard Primary & Secondary Slugs
+        const primarySlug = makeSlug(cleaned.replace(/&/g, 'and'));
+        const secondarySlug = makeSlug(cleaned.replace(/&/g, ''));
 
-        return { primarySlug, secondarySlug };
+        // Tertiary Slug: Strips leading short acronyms/prefixes (e.g., "NTE Neverness to Everness" -> "Neverness to Everness")
+        const noPrefix = cleaned.replace(/^[a-z0-9]{2,4}\s+/i, '');
+        const tertiarySlug = (noPrefix !== cleaned && noPrefix.length > 0) 
+            ? makeSlug(noPrefix.replace(/&/g, 'and')) 
+            : null;
+
+        return { primarySlug, secondarySlug, tertiarySlug };
     }
 
     // 2. Extract Game Title
@@ -81,7 +83,7 @@
         return null;
     }
 
-    // 4. Render UI Badge (Numbers on top, Labels underneath)
+    // 4. Render UI Badge
     function renderRatingBadge(ignScore, userScore, ignUrl) {
         const targetContainer = getTargetContainer();
         if (!targetContainer) return;
@@ -129,7 +131,7 @@
             <!-- Vertical Separator -->
             <div style="border-left: 1px solid #3d4450; height: ${isEpic ? '26px' : '30px'};"></div>
 
-            <!-- Column 2: IGN Score (Number top, Label bottom) -->
+            <!-- Column 2: IGN Score -->
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span style="font-size: ${isEpic ? '16px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</span>
                 <span style="font-size: ${isEpic ? '9px' : '10px'}; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">IGN Score</span>
@@ -138,7 +140,7 @@
             <!-- Vertical Separator -->
             <div style="border-left: 1px solid #3d4450; height: ${isEpic ? '26px' : '30px'};"></div>
 
-            <!-- Column 3: User Rating (Number top, Label bottom) -->
+            <!-- Column 3: User Rating -->
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span style="font-size: ${isEpic ? '16px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</span>
                 <span style="font-size: ${isEpic ? '9px' : '10px'}; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">User Rating</span>
@@ -152,19 +154,27 @@
         }
     }
 
-    // 5. Fetch and Parse IGN Game Page
+    // 5. Fetch and Parse IGN Game Page with Array-based Fallback Pipeline
     function fetchIGNRatings(gameTitle) {
-        const { primarySlug, secondarySlug } = createIgnSlugs(gameTitle);
-        const primaryUrl = `https://www.ign.com/games/${primarySlug}`;
-        const fallbackUrl = `https://www.ign.com/games/${secondarySlug}`;
+        const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
+        
+        // Build array of unique candidate URLs
+        const urlsToTry = [...new Set([
+            `https://www.ign.com/games/${primarySlug}`,
+            `https://www.ign.com/games/${secondarySlug}`,
+            tertiarySlug ? `https://www.ign.com/games/${tertiarySlug}` : null
+        ].filter(Boolean))];
 
-        function requestPage(targetUrl, isRetry = false) {
+        function requestPage(index = 0) {
+            const targetUrl = urlsToTry[index];
+
             GM_xmlhttpRequest({
                 method: 'GET',
                 url: targetUrl,
                 onload: function (response) {
-                    if (response.status === 404 && !isRetry && primarySlug !== secondarySlug) {
-                        requestPage(fallbackUrl, true);
+                    // If 404, try the next URL candidate in the array
+                    if (response.status === 404 && index + 1 < urlsToTry.length) {
+                        requestPage(index + 1);
                         return;
                     }
 
@@ -176,13 +186,14 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
 
-                    // Extraction Logic
+                    // --- Extract IGN Editor Score ---
                     let ignScore = 'N/A';
                     const ignScoreWrapper = doc.querySelector('[data-cy="review-score-hexagon-content-wrapper"] figcaption');
                     if (ignScoreWrapper) {
                         ignScore = ignScoreWrapper.textContent.trim();
                     }
 
+                    // --- Extract User Rating ---
                     let userScore = 'N/A';
                     const userReviewsLink = doc.querySelector('a[href*="/user-reviews"]');
                     if (userReviewsLink) {
@@ -219,7 +230,7 @@
             });
         }
 
-        requestPage(primaryUrl);
+        requestPage(0);
     }
 
     // Dynamic Observer execution
