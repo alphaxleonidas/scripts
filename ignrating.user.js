@@ -47,10 +47,18 @@
         return { primarySlug, secondarySlug, tertiarySlug };
     }
 
-    // 2. Extract Game Title (Includes Steam Mobile meta fallback)
+    // 2. Extract Game Title (Robust meta & DOM parsing for Steam Mobile)
     function getGameTitle() {
         if (IS_STEAM) {
-            // Standard Steam Selectors
+            // Mobile OpenGraph Fallback (Most reliable on mobile views)
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle && ogTitle.content) {
+                let rawTitle = ogTitle.content.trim();
+                rawTitle = rawTitle.replace(/^Save \d+% on /i, '').replace(/ on Steam$/i, '');
+                if (rawTitle) return rawTitle;
+            }
+
+            // Standard DOM Selectors
             let titleEl = document.getElementById('appHubAppName') || 
                           document.querySelector('.page_title_area .apphub_AppName') || 
                           document.querySelector('.page_content .stats_count_desc') ||
@@ -62,16 +70,7 @@
                 return titleEl.textContent.trim();
             }
 
-            // Mobile OpenGraph Fallback (Very reliable on Steam Mobile)
-            const ogTitle = document.querySelector('meta[property="og:title"]');
-            if (ogTitle && ogTitle.content) {
-                let rawTitle = ogTitle.content.trim();
-                // Strip Steam title suffix/prefixes
-                rawTitle = rawTitle.replace(/^Save \d+% on /i, '').replace(/ on Steam$/i, '');
-                return rawTitle;
-            }
-
-            // Document Title Fallback
+            // Document Title Regex Fallback
             if (document.title.includes('on Steam')) {
                 const titleMatch = document.title.match(/Save \d+% on (.*?) on Steam/i) || document.title.match(/(.*?) on Steam/i);
                 if (titleMatch && titleMatch[1]) {
@@ -93,17 +92,18 @@
         return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // 3. Find injection point (Includes Steam Mobile support)
+    // 3. Find injection point (Prioritizes stacked linear mobile containers on Steam)
     function getTargetContainer() {
         if (IS_STEAM) {
-            return document.querySelector('.user_reviews') || 
-                   document.querySelector('.glance_ctn') || 
+            return document.querySelector('.game_details_and_reviews_column') ||
+                   document.querySelector('.user_reviews') ||
                    document.querySelector('#game_highlights') ||
-                   document.querySelector('.game_title_area') || 
+                   document.querySelector('.game_purchase_action') ||
+                   document.querySelector('.game_area_purchase') ||
+                   document.querySelector('.glance_ctn') ||
+                   document.querySelector('.game_title_area') ||
                    document.querySelector('.game_header_area') ||
-                   document.querySelector('.app_header_content') ||
-                   document.querySelector('.game_area_purchase_margin') ||
-                   document.querySelector('.app_content') ||
+                   document.querySelector('.app_content_ctn') ||
                    document.querySelector('.responsive_page_template_simple');
         }
 
@@ -116,7 +116,7 @@
         return null;
     }
 
-    // 4. Render UI Badge (Styled to resemble Epic's clean layout across Mobile & Desktop)
+    // 4. Render UI Badge (Epic Mobile Style Applied Everywhere Necessary)
     function renderRatingBadge(ignScore, userScore, ignUrl) {
         const targetContainer = getTargetContainer();
         if (!targetContainer) return;
@@ -127,14 +127,14 @@
         const badgeCtn = document.createElement('div');
         badgeCtn.className = 'ign_rating_row';
 
-        const isMobile = window.innerWidth <= 768;
+        const isMobile = window.innerWidth <= 800;
         const useEpicStyle = IS_EPIC || isMobile;
 
         badgeCtn.style.cssText = `
             margin-top: 10px;
             margin-bottom: 10px;
-            padding: ${useEpicStyle ? '8px 10px' : '10px 14px'};
-            background: ${useEpicStyle ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.35)'};
+            padding: ${useEpicStyle ? '8px 12px' : '10px 14px'};
+            background: ${useEpicStyle ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.35)'};
             border-radius: 4px;
             border-left: 4px solid #bf1313;
             font-family: ${IS_EPIC ? 'sans-serif' : '"Motiva Sans", -apple-system, BlinkMacSystemFont, sans-serif'};
