@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Discord VirusTotal Link Scanner
 // @namespace    https://example.com/
-// @version      1.8
-// @description  Scan only Discord message links with VirusTotal and show scan status
+// @version      2.1
+// @description  Scan only Discord message links with VirusTotal, but skip embedded media and direct media links
 // @match        https://discord.com/*
 // @run-at       document-start
 // @grant        GM_xmlhttpRequest
@@ -70,10 +70,27 @@
     }
   }
 
+  function isMediaUrl(url) {
+    if (!url) return false;
+    const mediaExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg', '.ico',
+      '.mp4', '.webm', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.m4v',
+      '.mpeg', '.mpg', '.3gp', '.ogv'
+    ];
+    try {
+      const path = new URL(url).pathname.toLowerCase();
+      return mediaExtensions.some(ext => path.endsWith(ext));
+    } catch {
+      return false;
+    }
+  }
+
   function isMessageLink(a) {
     if (!a || a.tagName !== 'A') return false;
     const messageNode = a.closest('[id^="chat-messages-"], [class*="message"], [data-list-item-id^="chat-messages"]');
-    return !!messageNode;
+    if (!messageNode) return false;
+    if (a.querySelector('img, video, svg, canvas, picture')) return false;
+    return true;
   }
 
   function request(method, url, data = null) {
@@ -186,14 +203,15 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.35);
     `;
 
+    // Updated button labels
     box.innerHTML = `
       <div style="font-size:16px; font-weight:700; margin-bottom:10px;">VirusTotal result</div>
       <div style="white-space:pre-wrap; line-height:1.4; margin-bottom:14px;">${message}</div>
       <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
         <button id="vt-copy" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer;">Copy URL</button>
-        <button id="vt-vt" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer;">Open Link on Virustotal</button>
+        <button id="vt-vt" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer;">Open VT result</button>
         <button id="vt-cancel" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer;">Cancel</button>
-        <button id="vt-open" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer; background:#3ba55d; color:white;">Open</button>
+        <button id="vt-open" style="padding:8px 12px; border:0; border-radius:8px; cursor:pointer; background:#3ba55d; color:white;">Open Link in a New Tab</button>
       </div>
     `;
 
@@ -256,6 +274,7 @@
 
     const url = normalizeUrl(a.getAttribute('href'));
     if (!url) return;
+    if (isMediaUrl(url)) return;
 
     e.preventDefault();
     e.stopImmediatePropagation();
