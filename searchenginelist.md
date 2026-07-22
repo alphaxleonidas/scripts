@@ -34,4 +34,8 @@ https://copilot.microsoft.com/?q=%s
 https://copilot.microsoft.com/?q=%s
 ```
 
+## Youglish
+```
+https://youglish.com/pronounce/%s/english
+```
 ## Multi Search Engine: [Link](https://github.com/alphaxleonidas/scripts/blob/main/multisearchbookmark.md)
