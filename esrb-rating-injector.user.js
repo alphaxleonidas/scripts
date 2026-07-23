@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with accurate matching logic.
 // @author       Leonidas
 // @match        https://store.steampowered.com/app/*
