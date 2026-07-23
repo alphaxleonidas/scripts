@@ -189,9 +189,8 @@
         let descriptorsHtml = '';
         if (data.descriptors && data.descriptors.length > 0) {
             descriptorsHtml = `
-                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 11px; line-height: 1.4; color: #a3aab3;">
-                    <strong style="color: #c6d4df; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px;">Content Descriptors:</strong>
-                    ${data.descriptors.join(' • ')}
+                <div style="margin-top: 6px; font-size: 11px; line-height: 1.4; color: #a3aab3;">
+                    <strong style="color: #c6d4df; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Descriptors: </strong>${data.descriptors.join(' • ')}
                 </div>
             `;
         }
@@ -234,10 +233,9 @@
                             ${data.rating}
                         </div>
                         ${data.matchedTitle ? `<div style="font-size: 11px; color: #8f98a0; margin-top: 4px; line-height: 1.3;">${data.matchedTitle}</div>` : ''}
+                        ${descriptorsHtml}
                     </div>
                 </div>
-
-                ${descriptorsHtml}
             </div>
         `;
 
