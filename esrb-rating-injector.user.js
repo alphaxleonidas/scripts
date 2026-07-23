@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.1
-// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with accurate matching logic.
+// @version      1.0.0
+// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with dynamic single-page navigation support.
 // @author       Leonidas
-// @match        https://store.steampowered.com/app/*
-// @match        https://store.epicgames.com/*
+// @match        *://*.steampowered.com/*
+// @match        *://*.epicgames.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      esrb.org
 // @connect      www.esrb.org
@@ -13,6 +13,13 @@
 
 (function() {
     'use strict';
+
+    let isFetching = false;
+    let lastProcessedTitle = '';
+    let debounceTimer = null;
+
+    const IS_STEAM = window.location.hostname.includes('steampowered.com');
+    const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
     const TITLE_ALIASES = {
         'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
@@ -32,20 +39,43 @@
         'rating pending': 'https://www.esrb.org/wp-content/uploads/2019/05/RP.svg'
     };
 
-    const isSteam = window.location.hostname.includes('steampowered.com');
-    const isEpic = window.location.hostname.includes('epicgames.com');
-
     function getGameTitle() {
-        if (isSteam) {
-            const titleEl = document.querySelector('#appHubAppName') || document.querySelector('.apphub_AppName');
-            return titleEl ? titleEl.innerText.trim() : null;
-        } 
-        if (isEpic) {
-            const epicTitleEl = document.querySelector('h1') || 
-                                document.querySelector('[data-testid="pdp-title"]') ||
-                                document.querySelector('[class*="Title-"]');
-            return epicTitleEl ? epicTitleEl.innerText.trim() : null;
+        if (IS_STEAM) {
+            const titleEl = document.getElementById('appHubAppName') ||
+                            document.querySelector('.page_title_area .apphub_AppName') ||
+                            document.querySelector('.app_header_content .app_name');
+
+            if (titleEl && titleEl.textContent.trim()) {
+                return titleEl.textContent.trim();
+            }
+
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle && ogTitle.content) {
+                let title = ogTitle.content.trim()
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title) return title;
+            }
+
+            if (document.title) {
+                let title = document.title
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title && title !== 'Steam') return title;
+            }
         }
+
+        if (IS_EPIC) {
+            const h1El = document.querySelector('h1') || 
+                         document.querySelector('[data-testid="pdp-title"]') ||
+                         document.querySelector('[class*="Title-"]');
+            if (h1El && h1El.textContent.trim()) return h1El.textContent.trim();
+        }
+
         return null;
     }
 
@@ -181,7 +211,8 @@
     }
 
     function injectUI(data) {
-        if (document.querySelector('#store-esrb-badge')) return;
+        const existingBadge = document.querySelector('#store-esrb-badge');
+        if (existingBadge) existingBadge.remove();
 
         const ratingKey = data.rating.toLowerCase().trim();
         const iconUrl = ESRB_ICONS[ratingKey] || '';
@@ -244,27 +275,17 @@
             </div>
         `;
 
-        if (isSteam) {
+        if (IS_STEAM) {
             const steamTarget = document.querySelector('.glance_ctn') || document.querySelector('.game_meta_data');
             if (steamTarget) steamTarget.insertAdjacentHTML('afterbegin', badgeHtml);
-        } else if (isEpic) {
+        } else if (IS_EPIC) {
             const epicTarget = document.querySelector('aside') || document.querySelector('[data-testid="pdp-title"]')?.parentElement;
             if (epicTarget) epicTarget.insertAdjacentHTML('afterbegin', badgeHtml);
         }
     }
 
-    let lastExecutedTitle = '';
-    let isFetching = false;
-
-    async function init() {
-        if (isFetching) return;
-
-        const title = getGameTitle();
-        if (!title || title === lastExecutedTitle) return;
-
+    async function processESRB(title) {
         isFetching = true;
-        lastExecutedTitle = title;
-
         const queries = buildSearchQueries(title);
         let match = null;
 
@@ -288,14 +309,30 @@
         isFetching = false;
     }
 
-    window.addEventListener('load', () => setTimeout(init, 1000));
+    function init() {
+        const title = getGameTitle();
+        if (!title) return;
 
-    let timeoutId = null;
-    const observer = new MutationObserver(() => {
-        if (!document.querySelector('#store-esrb-badge') && !isFetching) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(init, 500);
+        if (title !== lastProcessedTitle) {
+            lastProcessedTitle = title;
+            const existingBadge = document.querySelector('#store-esrb-badge');
+            if (existingBadge) existingBadge.remove();
         }
+
+        if (!document.querySelector('#store-esrb-badge') && !isFetching) {
+            processESRB(title);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    const observer = new MutationObserver(() => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(init, 250);
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
