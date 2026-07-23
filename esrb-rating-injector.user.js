@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.0
+// @version      1.0.2
 // @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with dynamic single-page navigation support.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
@@ -21,12 +21,15 @@
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
+    // Expanded aliases to handle common full-title variations
     const TITLE_ALIASES = {
         'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
         'cs2': ['counter-strike: global offensive'],
         'overwatch 2': ['overwatch'],
         'ea sports fc 24': ['fifa 24', 'fifa 23'],
-        'eafc 24': ['fifa 24']
+        'eafc 24': ['fifa 24'],
+        'jurassic world evolution 3': ['jurassic world evolution 3: rebirth expansion'],
+        'conan exiles': ['conan exiles enhanced: isle of siptah']  // map full title to base name
     };
 
     const ESRB_ICONS = {
@@ -83,12 +86,15 @@
         const queries = [rawTitle];
         const lower = rawTitle.toLowerCase();
 
+        // Direct alias lookup
         if (TITLE_ALIASES[lower]) {
             queries.push(...TITLE_ALIASES[lower]);
         }
 
+        // Clean the title: strip colon suffix and common qualifiers
         const cleanedTitle = rawTitle
-            .replace(/(:?\s*(Ultimate|GOTY|Game of the Year|Deluxe|Standard|Enhanced|Definitive|Remastered|Digital Deluxe)\s*Edition)/i, '')
+            .replace(/\s*:.*$/, '')  // remove colon and everything after
+            .replace(/\s*(?:Ultimate|GOTY|Game of the Year|Deluxe|Standard|Enhanced|Definitive|Remastered|Digital Deluxe|Rebirth Expansion|Expansion|DLC)\s*(?:Edition)?/gi, '')
             .replace(/\s*\(.*\)$/, '')
             .trim();
 
@@ -175,11 +181,19 @@
 
         const targetLower = searchTitle.toLowerCase().trim();
 
+        // 1. Exact match
         const exactMatch = results.find(r => r.title.toLowerCase().trim() === targetLower);
-        const candidatePool = exactMatch 
-            ? results.filter(r => r.title.toLowerCase().trim() === targetLower)
-            : results;
+        if (exactMatch) {
+            return {
+                rating: exactMatch.rating,
+                platform: 'PC',
+                matchedTitle: exactMatch.title,
+                descriptors: exactMatch.descriptors,
+                url: exactMatch.url
+            };
+        }
 
+        // 2. Platform preference (PC, PS5, PS4)
         const platforms = [
             { key: 'pc', label: 'PC' },
             { key: 'playstation 5', label: 'PS5' },
@@ -187,9 +201,8 @@
             { key: 'playstation 4', label: 'PS4' },
             { key: 'ps4', label: 'PS4' }
         ];
-
         for (const p of platforms) {
-            const match = candidatePool.find(r => r.platforms.toLowerCase().includes(p.key));
+            const match = results.find(r => r.platforms.toLowerCase().includes(p.key));
             if (match) {
                 return {
                     rating: match.rating,
@@ -201,12 +214,28 @@
             }
         }
 
+        // 3. Partial match (title contains searchTitle, or vice versa)
+        const partialMatch = results.find(r => {
+            const titleLower = r.title.toLowerCase().trim();
+            return titleLower.includes(targetLower) || targetLower.includes(titleLower);
+        });
+        if (partialMatch) {
+            return {
+                rating: partialMatch.rating,
+                platform: 'Console/Global',
+                matchedTitle: partialMatch.title,
+                descriptors: partialMatch.descriptors,
+                url: partialMatch.url
+            };
+        }
+
+        // 4. Last resort: take the first result
         return {
-            rating: candidatePool[0].rating,
+            rating: results[0].rating,
             platform: 'Console/Global',
-            matchedTitle: candidatePool[0].title,
-            descriptors: candidatePool[0].descriptors,
-            url: candidatePool[0].url
+            matchedTitle: results[0].title,
+            descriptors: results[0].descriptors,
+            url: results[0].url
         };
     }
 
