@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
-// @description  Displays IGN review score and user ratings on Steam (desktop & mobile) and Epic Games Store with unified layout styling and smart multi-slug fallback.
+// @version      1.3.1
+// @description  Displays IGN review score and user ratings directly below User Reviews on Steam, and prepended in the purchase container on Epic Games Store.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -14,15 +14,13 @@
 (function () {
     'use strict';
 
-    // Track processing status to avoid duplicate network requests
     let isFetching = false;
     let lastProcessedTitle = '';
 
-    // Detect site environment
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
-    // 1. Clean title and generate IGN URL slugs (with acronym/prefix fallback)
+    // 1. Slug generator for IGN URLs
     function createIgnSlugs(title) {
         const cleaned = title
             .normalize('NFD')
@@ -34,48 +32,44 @@
 
         const makeSlug = (str) => str.replace(/\s+/g, '-').toLowerCase();
 
-        // Standard Primary & Secondary Slugs
         const primarySlug = makeSlug(cleaned.replace(/&/g, 'and'));
         const secondarySlug = makeSlug(cleaned.replace(/&/g, ''));
-
-        // Tertiary Slug: Strips leading short acronyms/prefixes
         const noPrefix = cleaned.replace(/^[a-z0-9]{2,4}\s+/i, '');
-        const tertiarySlug = (noPrefix !== cleaned && noPrefix.length > 0) 
-            ? makeSlug(noPrefix.replace(/&/g, 'and')) 
+        const tertiarySlug = (noPrefix !== cleaned && noPrefix.length > 0)
+            ? makeSlug(noPrefix.replace(/&/g, 'and'))
             : null;
 
         return { primarySlug, secondarySlug, tertiarySlug };
     }
 
-    // 2. Extract Game Title (Robust meta & DOM parsing for Steam Mobile)
+    // 2. Extracts title reliably across standard, mobile, and age-gate pages
     function getGameTitle() {
         if (IS_STEAM) {
-            // Mobile OpenGraph Fallback (Most reliable on mobile views)
+            // OpenGraph / Page Title
             const ogTitle = document.querySelector('meta[property="og:title"]');
             if (ogTitle && ogTitle.content) {
-                let rawTitle = ogTitle.content.trim();
-                rawTitle = rawTitle.replace(/^Save \d+% on /i, '').replace(/ on Steam$/i, '');
-                if (rawTitle) return rawTitle;
+                let title = ogTitle.content.trim()
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title) return title;
             }
 
-            // Standard DOM Selectors
-            let titleEl = document.getElementById('appHubAppName') || 
-                          document.querySelector('.page_title_area .apphub_AppName') || 
-                          document.querySelector('.page_content .stats_count_desc') ||
-                          document.querySelector('.app_header_content .app_name') ||
-                          document.querySelector('.mobile_app_name') ||
-                          document.querySelector('h2.page_title');
+            if (document.title) {
+                let title = document.title
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title && title !== 'Steam') return title;
+            }
+
+            // DOM App Names
+            let titleEl = document.getElementById('appHubAppName') ||
+                          document.querySelector('.page_title_area .apphub_AppName') ||
+                          document.querySelector('.app_header_content .app_name');
 
             if (titleEl && titleEl.textContent.trim()) {
                 return titleEl.textContent.trim();
-            }
-
-            // Document Title Regex Fallback
-            if (document.title.includes('on Steam')) {
-                const titleMatch = document.title.match(/Save \d+% on (.*?) on Steam/i) || document.title.match(/(.*?) on Steam/i);
-                if (titleMatch && titleMatch[1]) {
-                    return titleMatch[1].trim();
-                }
             }
         }
 
@@ -87,114 +81,129 @@
         return null;
     }
 
-    // Helper to escape HTML characters
     function escapeHtml(str) {
         return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // 3. Find injection point (Prioritizes stacked linear mobile containers on Steam)
-    function getTargetContainer() {
+    // 3. Targets placement (v1.3.0 logic for Steam; v1.0.0 prepend logic for Epic)
+    function getTargetInsertionPoint() {
         if (IS_STEAM) {
-            return document.querySelector('.game_details_and_reviews_column') ||
-                   document.querySelector('.user_reviews') ||
-                   document.querySelector('#game_highlights') ||
-                   document.querySelector('.game_purchase_action') ||
-                   document.querySelector('.game_area_purchase') ||
-                   document.querySelector('.glance_ctn') ||
-                   document.querySelector('.game_title_area') ||
-                   document.querySelector('.game_header_area') ||
-                   document.querySelector('.app_content_ctn') ||
-                   document.querySelector('.responsive_page_template_simple');
+            // Priority 1: Steam Mobile & Desktop Review Containers
+            const mobileReviews = document.querySelector('#user_reviews_container') ||
+                                  document.querySelector('.user_reviews') ||
+                                  document.querySelector('#app_reviews_hash') ||
+                                  document.querySelector('.user_reviews_filter_score') ||
+                                  document.querySelector('.review_histogram_rollup');
+
+            if (mobileReviews) {
+                return { element: mobileReviews, position: 'after' };
+            }
+
+            // Priority 2: Steam Mobile Page Content Container
+            const gameDetailsCol = document.querySelector('.game_details_and_reviews_column') ||
+                                   document.querySelector('#game_highlights') ||
+                                   document.querySelector('.app_content_ctn');
+
+            if (gameDetailsCol) {
+                return { element: gameDetailsCol, position: 'append' };
+            }
+
+            // Priority 3: Steam Age-Gate Fallback
+            const ageGateCtn = document.querySelector('.agegate_birthday_selector') ||
+                               document.querySelector('.agegate_text_container');
+
+            if (ageGateCtn) {
+                return { element: ageGateCtn, position: 'before' };
+            }
         }
 
         if (IS_EPIC) {
-            return document.querySelector('[data-testid="purchase-cta-layout"]') ||
-                   document.querySelector('aside') ||
-                   document.querySelector('[role="main"]');
+            // Reverted to v1.0.0 targets with 'prepend' position for both mobile & desktop
+            const epicTarget = document.querySelector('[data-testid="purchase-cta-layout"]') ||
+                               document.querySelector('aside') ||
+                               document.querySelector('[role="main"]');
+            if (epicTarget) return { element: epicTarget, position: 'prepend' };
         }
 
         return null;
     }
 
-    // 4. Render UI Badge (Epic Mobile Style Applied Everywhere Necessary)
+    // 4. Render Rating Badge
     function renderRatingBadge(ignScore, userScore, ignUrl) {
-        const targetContainer = getTargetContainer();
-        if (!targetContainer) return;
+        const targetObj = getTargetInsertionPoint();
+        if (!targetObj) return;
 
+        // Prevent duplicate rendering
         const existingBadge = document.querySelector('.ign_rating_row');
         if (existingBadge) existingBadge.remove();
 
         const badgeCtn = document.createElement('div');
         badgeCtn.className = 'ign_rating_row';
 
-        const isMobile = window.innerWidth <= 800;
-        const useEpicStyle = IS_EPIC || isMobile;
-
         badgeCtn.style.cssText = `
-            margin-top: 10px;
-            margin-bottom: 10px;
-            padding: ${useEpicStyle ? '8px 12px' : '10px 14px'};
-            background: ${useEpicStyle ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.35)'};
-            border-radius: 4px;
+            margin: 10px auto;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 6px;
             border-left: 4px solid #bf1313;
-            font-family: ${IS_EPIC ? 'sans-serif' : '"Motiva Sans", -apple-system, BlinkMacSystemFont, sans-serif'};
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             width: 100%;
             box-sizing: border-box;
             display: flex;
             align-items: center;
             justify-content: space-around;
-            gap: 6px;
+            gap: 8px;
+            clear: both;
         `;
 
         badgeCtn.innerHTML = `
-            <!-- Column 1: IGN Header Link -->
             <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
                 <a href="${encodeURI(ignUrl)}" target="_blank" rel="noopener noreferrer" style="
                     font-weight: bold;
                     color: #ff3e3e;
-                    font-size: ${useEpicStyle ? '11px' : '12px'};
+                    font-size: 12px;
                     letter-spacing: 0.5px;
                     text-transform: uppercase;
                     text-decoration: none;
                     white-space: nowrap;
-                    transition: color 0.2s ease;
-                " onmouseover="this.style.color='#ff6b6b'" onmouseout="this.style.color='#ff3e3e'">
+                ">
                     IGN Ratings ↗
                 </a>
             </div>
 
-            <!-- Vertical Separator -->
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 24px;"></div>
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 26px;"></div>
 
-            <!-- Column 2: IGN Score -->
             <div style="display: flex; flex-direction: column; align-items: center;">
-                <span style="font-size: ${useEpicStyle ? '15px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</span>
-                <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">IGN Score</span>
+                <span style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</span>
+                <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; margin-top: 3px;">IGN Score</span>
             </div>
 
-            <!-- Vertical Separator -->
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 24px;"></div>
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 26px;"></div>
 
-            <!-- Column 3: User Rating -->
             <div style="display: flex; flex-direction: column; align-items: center;">
-                <span style="font-size: ${useEpicStyle ? '15px' : '18px'}; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</span>
-                <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; margin-top: 3px;">User Rating</span>
+                <span style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</span>
+                <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; margin-top: 3px;">User Rating</span>
             </div>
         `;
 
-        if (IS_EPIC || isMobile) {
-            targetContainer.prepend(badgeCtn);
+        // Insertion Logic
+        const { element, position } = targetObj;
+        if (position === 'after' && element.parentNode) {
+            element.parentNode.insertBefore(badgeCtn, element.nextSibling);
+        } else if (position === 'before' && element.parentNode) {
+            element.parentNode.insertBefore(badgeCtn, element);
+        } else if (position === 'prepend') {
+            element.prepend(badgeCtn);
         } else {
-            targetContainer.appendChild(badgeCtn);
+            element.appendChild(badgeCtn);
         }
     }
 
-    // 5. Fetch and Parse IGN Game Page with Array-based Fallback Pipeline
+    // 5. Network Request to Fetch IGN Ratings
     function fetchIGNRatings(gameTitle) {
         isFetching = true;
         const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
 
-        // Build array of unique candidate URLs
         const urlsToTry = [...new Set([
             `https://www.ign.com/games/${primarySlug}`,
             `https://www.ign.com/games/${secondarySlug}`,
@@ -208,7 +217,6 @@
                 method: 'GET',
                 url: targetUrl,
                 onload: function (response) {
-                    // If 404, try the next URL candidate in the array
                     if (response.status === 404 && index + 1 < urlsToTry.length) {
                         requestPage(index + 1);
                         return;
@@ -223,14 +231,12 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
 
-                    // --- Extract IGN Editor Score ---
                     let ignScore = 'N/A';
                     const ignScoreWrapper = doc.querySelector('[data-cy="review-score-hexagon-content-wrapper"] figcaption');
                     if (ignScoreWrapper) {
                         ignScore = ignScoreWrapper.textContent.trim();
                     }
 
-                    // --- Extract User Rating ---
                     let userScore = 'N/A';
                     const userReviewsLink = doc.querySelector('a[href*="/user-reviews"]');
                     if (userReviewsLink) {
@@ -272,12 +278,10 @@
         requestPage(0);
     }
 
-    // Dynamic Observer execution
     function init() {
         const title = getGameTitle();
         if (!title) return;
 
-        // Reset tracking if title changed on SPA navigation
         if (title !== lastProcessedTitle) {
             lastProcessedTitle = title;
             const existingBadge = document.querySelector('.ign_rating_row');
@@ -289,8 +293,13 @@
         }
     }
 
-    init();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
+    // Observer guarantees placement as user scrolls and mobile components load dynamically
     const observer = new MutationObserver(() => {
         init();
     });
