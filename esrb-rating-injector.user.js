@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0
-// @description  Injects high-res ESRB ratings, icons, descriptors, and links into Steam and Epic Games Store with accurate matching logic.
+// @version      1.0.0
+// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with accurate matching logic.
 // @author       Leonidas
 // @match        https://store.steampowered.com/app/*
 // @match        https://store.epicgames.com/*
@@ -186,11 +186,11 @@
         const ratingKey = data.rating.toLowerCase().trim();
         const iconUrl = ESRB_ICONS[ratingKey] || '';
 
-        let descriptorsHtml = '';
+        let descriptionHtml = '';
         if (data.descriptors && data.descriptors.length > 0) {
-            descriptorsHtml = `
+            descriptionHtml = `
                 <div style="margin-top: 6px; font-size: 11px; line-height: 1.4; color: #a3aab3;">
-                    <strong style="color: #c6d4df; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Descriptors: </strong>${data.descriptors.join(' • ')}
+                    <strong style="color: #c6d4df; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Description: </strong>${data.descriptors.join(' • ')}
                 </div>
             `;
         }
@@ -232,8 +232,13 @@
                         <div style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1.2;">
                             ${data.rating}
                         </div>
-                        ${data.matchedTitle ? `<div style="font-size: 11px; color: #8f98a0; margin-top: 4px; line-height: 1.3;">${data.matchedTitle}</div>` : ''}
-                        ${descriptorsHtml}
+                        ${data.matchedTitle ? `
+                            <div style="font-size: 11px; margin-top: 4px; line-height: 1.3;">
+                                <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" style="color: #67c1f5; text-decoration: underline; text-underline-offset: 2px;">
+                                    ${data.matchedTitle}
+                                </a>
+                            </div>` : ''}
+                        ${descriptionHtml}
                     </div>
                 </div>
             </div>
