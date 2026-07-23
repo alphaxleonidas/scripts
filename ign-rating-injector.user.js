@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.3.4
+// @version      1.3.7
 // @description  Displays IGN review score and user ratings directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
@@ -28,28 +28,41 @@
         'overwatch 2': ['overwatch'],
         'ea sports fc 24': ['fifa 24', 'fifa 23'],
         'eafc 24': ['fifa 24'],
-        'final fantasy vii remake intergrade': ['final fantasy vii remake']
+        'final fantasy vii remake intergrade': ['final fantasy vii remake'],
+        'jurassic world evolution 3: rebirth expansion': ['jurassic world evolution 3'],
+        // Fix for Conan Exiles Enhanced: Isle of Siptah → base game
+        'conan exiles enhanced: isle of siptah': ['conan exiles']
     };
 
     // 1. Slug generator for IGN URLs
     function createIgnSlugs(title) {
-        const cleaned = title
+        // Normalize Unicode
+        let cleaned = title
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            // Strips common edition words. "remastered" is included, but "remake" is NOT.
-            // This ensures "Resident Evil 4 Remake" stays as "resident-evil-4-remake".
+            .replace(/[\u0300-\u036f]/g, '');
+
+        // Strip common edition words (remastered is stripped, remake is NOT)
+        // Also strip common expansion/DLC indicators like ": Rebirth Expansion" or "Enhanced: Isle of Siptah"
+        cleaned = cleaned
             .replace(/\b(ultimate|deluxe|game of the year|goty|standard|digital deluxe|complete|enhanced|remastered|director's cut|anniversary)\s*(edition)?\b/gi, '')
-            // The separate line that used to strip "remake" has been deleted entirely.
-            .replace(/[^a-z0-9\s-&]/gi, '')
+            .replace(/\s*[:|]\s*(rebirth|expansion|dlc|season pass|enhanced|isle of .*)\s*\w*/gi, '') // improved regex
             .trim();
 
-        const makeSlug = (str) => str.replace(/\s+/g, '-').toLowerCase();
+        // Convert all non‑alphanumeric chars to a single hyphen
+        let slug = cleaned
+            .replace(/[^a-z0-9]/gi, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .toLowerCase();
 
-        const primarySlug = makeSlug(cleaned.replace(/&/g, 'and'));
-        const secondarySlug = makeSlug(cleaned.replace(/&/g, ''));
+        // Variations for '&' handling
+        const primarySlug = slug.replace(/&/g, 'and');
+        const secondarySlug = slug.replace(/&/g, '');
+
+        // Optional: strip a short prefix (e.g., "Tom Clancy's")
         const noPrefix = cleaned.replace(/^[a-z0-9]{2,4}\s+/i, '');
         const tertiarySlug = (noPrefix !== cleaned && noPrefix.length > 0)
-            ? makeSlug(noPrefix.replace(/&/g, 'and'))
+            ? noPrefix.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().replace(/&/g, 'and')
             : null;
 
         return { primarySlug, secondarySlug, tertiarySlug };
