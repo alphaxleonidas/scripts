@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.3.1
-// @description  Displays IGN review score and user ratings directly below User Reviews on Steam, and prepended in the purchase container on Epic Games Store.
+// @version      1.3.2
+// @description  Displays IGN review score and user ratings directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -16,6 +16,7 @@
 
     let isFetching = false;
     let lastProcessedTitle = '';
+    let debounceTimer = null;
 
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
@@ -45,11 +46,19 @@
     // 2. Extracts title reliably across standard, mobile, and age-gate pages
     function getGameTitle() {
         if (IS_STEAM) {
-            // OpenGraph / Page Title
+            const titleEl = document.getElementById('appHubAppName') ||
+                            document.querySelector('.page_title_area .apphub_AppName') ||
+                            document.querySelector('.app_header_content .app_name');
+
+            if (titleEl && titleEl.textContent.trim()) {
+                return titleEl.textContent.trim();
+            }
+
             const ogTitle = document.querySelector('meta[property="og:title"]');
             if (ogTitle && ogTitle.content) {
                 let title = ogTitle.content.trim()
                     .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
                     .replace(/ on Steam$/i, '')
                     .trim();
                 if (title) return title;
@@ -58,18 +67,10 @@
             if (document.title) {
                 let title = document.title
                     .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
                     .replace(/ on Steam$/i, '')
                     .trim();
                 if (title && title !== 'Steam') return title;
-            }
-
-            // DOM App Names
-            let titleEl = document.getElementById('appHubAppName') ||
-                          document.querySelector('.page_title_area .apphub_AppName') ||
-                          document.querySelector('.app_header_content .app_name');
-
-            if (titleEl && titleEl.textContent.trim()) {
-                return titleEl.textContent.trim();
             }
         }
 
@@ -85,40 +86,35 @@
         return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    // 3. Targets placement (v1.3.0 logic for Steam; v1.0.0 prepend logic for Epic)
+    // 3. Targets placement (Upper right sidebar above game image for Steam)
     function getTargetInsertionPoint() {
         if (IS_STEAM) {
-            // Priority 1: Steam Mobile & Desktop Review Containers
+            // Priority 1: Directly ABOVE the main right-sidebar header image
+            const headerImage = document.querySelector('.game_header_image_full') ||
+                                document.querySelector('.game_header_image_ctn') ||
+                                document.querySelector('.glance_ctn_responsive .game_header_image_full');
+
+            if (headerImage) {
+                return { element: headerImage, position: 'before' };
+            }
+
+            // Priority 2: Top of the right sidebar wrapper
+            const glanceCtn = document.querySelector('.glance_ctn_responsive') ||
+                               document.querySelector('.game_meta_data');
+            if (glanceCtn) {
+                return { element: glanceCtn, position: 'prepend' };
+            }
+
+            // Priority 3: Steam Mobile & Fallback Review Containers
             const mobileReviews = document.querySelector('#user_reviews_container') ||
-                                  document.querySelector('.user_reviews') ||
-                                  document.querySelector('#app_reviews_hash') ||
                                   document.querySelector('.user_reviews_filter_score') ||
                                   document.querySelector('.review_histogram_rollup');
-
             if (mobileReviews) {
                 return { element: mobileReviews, position: 'after' };
-            }
-
-            // Priority 2: Steam Mobile Page Content Container
-            const gameDetailsCol = document.querySelector('.game_details_and_reviews_column') ||
-                                   document.querySelector('#game_highlights') ||
-                                   document.querySelector('.app_content_ctn');
-
-            if (gameDetailsCol) {
-                return { element: gameDetailsCol, position: 'append' };
-            }
-
-            // Priority 3: Steam Age-Gate Fallback
-            const ageGateCtn = document.querySelector('.agegate_birthday_selector') ||
-                               document.querySelector('.agegate_text_container');
-
-            if (ageGateCtn) {
-                return { element: ageGateCtn, position: 'before' };
             }
         }
 
         if (IS_EPIC) {
-            // Reverted to v1.0.0 targets with 'prepend' position for both mobile & desktop
             const epicTarget = document.querySelector('[data-testid="purchase-cta-layout"]') ||
                                document.querySelector('aside') ||
                                document.querySelector('[role="main"]');
@@ -128,12 +124,11 @@
         return null;
     }
 
-    // 4. Render Rating Badge
+    // 4. Render Rating Badge (Restored to original 1.3.1 styling/dimensions)
     function renderRatingBadge(ignScore, userScore, ignUrl) {
         const targetObj = getTargetInsertionPoint();
         if (!targetObj) return;
 
-        // Prevent duplicate rendering
         const existingBadge = document.querySelector('.ign_rating_row');
         if (existingBadge) existingBadge.remove();
 
@@ -186,7 +181,6 @@
             </div>
         `;
 
-        // Insertion Logic
         const { element, position } = targetObj;
         if (position === 'after' && element.parentNode) {
             element.parentNode.insertBefore(badgeCtn, element.nextSibling);
@@ -199,7 +193,7 @@
         }
     }
 
-    // 5. Network Request to Fetch IGN Ratings
+    // 5. Network Request
     function fetchIGNRatings(gameTitle) {
         isFetching = true;
         const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
@@ -232,18 +226,27 @@
                     const doc = parser.parseFromString(response.responseText, 'text/html');
 
                     let ignScore = 'N/A';
-                    const ignScoreWrapper = doc.querySelector('[data-cy="review-score-hexagon-content-wrapper"] figcaption');
-                    if (ignScoreWrapper) {
-                        ignScore = ignScoreWrapper.textContent.trim();
+                    let userScore = 'N/A';
+
+                    const jsonScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+                    jsonScripts.forEach(script => {
+                        try {
+                            const data = JSON.parse(script.textContent);
+                            if (data.reviewRating?.ratingValue) {
+                                ignScore = String(data.reviewRating.ratingValue);
+                            }
+                        } catch (e) {}
+                    });
+
+                    if (ignScore === 'N/A') {
+                        const ignScoreWrapper = doc.querySelector('[data-cy="review-score-hexagon-content-wrapper"] figcaption');
+                        if (ignScoreWrapper) ignScore = ignScoreWrapper.textContent.trim();
                     }
 
-                    let userScore = 'N/A';
                     const userReviewsLink = doc.querySelector('a[href*="/user-reviews"]');
                     if (userReviewsLink) {
                         const ratingEl = userReviewsLink.querySelector('[data-cy="score-rating-small"]');
-                        if (ratingEl) {
-                            userScore = ratingEl.textContent.trim();
-                        }
+                        if (ratingEl) userScore = ratingEl.textContent.trim();
                     }
 
                     if (userScore === 'N/A') {
@@ -251,18 +254,6 @@
                         if (smallScoreEls.length > 0) {
                             userScore = smallScoreEls[smallScoreEls.length - 1].textContent.trim();
                         }
-                    }
-
-                    if (ignScore === 'N/A') {
-                        const jsonScripts = doc.querySelectorAll('script[type="application/ld+json"]');
-                        jsonScripts.forEach(script => {
-                            try {
-                                const data = JSON.parse(script.textContent);
-                                if (data.reviewRating?.ratingValue) {
-                                    ignScore = data.reviewRating.ratingValue;
-                                }
-                            } catch (e) {}
-                        });
                     }
 
                     renderRatingBadge(ignScore, userScore, targetUrl);
@@ -299,9 +290,9 @@
         init();
     }
 
-    // Observer guarantees placement as user scrolls and mobile components load dynamically
     const observer = new MutationObserver(() => {
-        init();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(init, 250);
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
