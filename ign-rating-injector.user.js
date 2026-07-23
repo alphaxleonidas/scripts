@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.3.2
+// @version      1.3.4
 // @description  Displays IGN review score and user ratings directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
@@ -21,13 +21,25 @@
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
+    // ---- Title aliases for games with common name changes ----
+    const TITLE_ALIASES = {
+        'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
+        'cs2': ['counter-strike: global offensive'],
+        'overwatch 2': ['overwatch'],
+        'ea sports fc 24': ['fifa 24', 'fifa 23'],
+        'eafc 24': ['fifa 24'],
+        'final fantasy vii remake intergrade': ['final fantasy vii remake']
+    };
+
     // 1. Slug generator for IGN URLs
     function createIgnSlugs(title) {
         const cleaned = title
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
+            // Strips common edition words. "remastered" is included, but "remake" is NOT.
+            // This ensures "Resident Evil 4 Remake" stays as "resident-evil-4-remake".
             .replace(/\b(ultimate|deluxe|game of the year|goty|standard|digital deluxe|complete|enhanced|remastered|director's cut|anniversary)\s*(edition)?\b/gi, '')
-            .replace(/\b(remastered|remake)\b/gi, '')
+            // The separate line that used to strip "remake" has been deleted entirely.
             .replace(/[^a-z0-9\s-&]/gi, '')
             .trim();
 
@@ -89,7 +101,6 @@
     // 3. Targets placement (Upper right sidebar above game image for Steam)
     function getTargetInsertionPoint() {
         if (IS_STEAM) {
-            // Priority 1: Directly ABOVE the main right-sidebar header image
             const headerImage = document.querySelector('.game_header_image_full') ||
                                 document.querySelector('.game_header_image_ctn') ||
                                 document.querySelector('.glance_ctn_responsive .game_header_image_full');
@@ -98,14 +109,12 @@
                 return { element: headerImage, position: 'before' };
             }
 
-            // Priority 2: Top of the right sidebar wrapper
             const glanceCtn = document.querySelector('.glance_ctn_responsive') ||
                                document.querySelector('.game_meta_data');
             if (glanceCtn) {
                 return { element: glanceCtn, position: 'prepend' };
             }
 
-            // Priority 3: Steam Mobile & Fallback Review Containers
             const mobileReviews = document.querySelector('#user_reviews_container') ||
                                   document.querySelector('.user_reviews_filter_score') ||
                                   document.querySelector('.review_histogram_rollup');
@@ -124,7 +133,7 @@
         return null;
     }
 
-    // 4. Render Rating Badge (Restored to original 1.3.1 styling/dimensions)
+    // 4. Render Rating Badge
     function renderRatingBadge(ignScore, userScore, ignUrl) {
         const targetObj = getTargetInsertionPoint();
         if (!targetObj) return;
@@ -193,18 +202,33 @@
         }
     }
 
-    // 5. Network Request
+    // 5. Network Request with alias support
     function fetchIGNRatings(gameTitle) {
         isFetching = true;
-        const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
 
-        const urlsToTry = [...new Set([
-            `https://www.ign.com/games/${primarySlug}`,
-            `https://www.ign.com/games/${secondarySlug}`,
-            tertiarySlug ? `https://www.ign.com/games/${tertiarySlug}` : null
-        ].filter(Boolean))];
+        const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
+        let slugs = [primarySlug, secondarySlug, tertiarySlug].filter(Boolean);
+
+        const lowerTitle = gameTitle.toLowerCase();
+        if (TITLE_ALIASES.hasOwnProperty(lowerTitle)) {
+            const aliases = TITLE_ALIASES[lowerTitle];
+            for (const alias of aliases) {
+                const aliasSlugs = createIgnSlugs(alias);
+                const toAdd = [aliasSlugs.primarySlug, aliasSlugs.secondarySlug, aliasSlugs.tertiarySlug].filter(Boolean);
+                slugs = slugs.concat(toAdd);
+            }
+        }
+
+        slugs = [...new Set(slugs)];
+        const urlsToTry = slugs.map(slug => `https://www.ign.com/games/${slug}`);
 
         function requestPage(index = 0) {
+            if (index >= urlsToTry.length) {
+                renderRatingBadge('N/A', 'N/A', urlsToTry[0] || 'https://www.ign.com');
+                isFetching = false;
+                return;
+            }
+
             const targetUrl = urlsToTry[index];
 
             GM_xmlhttpRequest({
