@@ -234,8 +234,8 @@
                         </div>
                         ${data.matchedTitle ? `
                             <div style="font-size: 11px; margin-top: 4px; line-height: 1.3;">
-                                <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" style="color: #67c1f5; text-decoration: underline; text-underline-offset: 2px;">
-                                    ${data.matchedTitle}
+                                <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" style="color: #67c1f5; text-decoration: none;">
+                                    ${data.matchedTitle} ↗
                                 </a>
                             </div>` : ''}
                         ${descriptionHtml}
