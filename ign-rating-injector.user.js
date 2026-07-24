@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.3.7
+// @version      1.3.8
 // @description  Displays IGN review score and user ratings directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
@@ -30,8 +30,9 @@
         'eafc 24': ['fifa 24'],
         'final fantasy vii remake intergrade': ['final fantasy vii remake'],
         'jurassic world evolution 3: rebirth expansion': ['jurassic world evolution 3'],
-        // Fix for Conan Exiles Enhanced: Isle of Siptah → base game
-        'conan exiles enhanced: isle of siptah': ['conan exiles']
+        'conan exiles enhanced: isle of siptah': ['conan exiles'],
+        // Fix for Ratchet & Clank: Rift Apart → ratchet-and-clank-rift-apart
+        'ratchet & clank: rift apart': ['ratchet and clank rift apart']
     };
 
     // 1. Slug generator for IGN URLs
@@ -42,10 +43,10 @@
             .replace(/[\u0300-\u036f]/g, '');
 
         // Strip common edition words (remastered is stripped, remake is NOT)
-        // Also strip common expansion/DLC indicators like ": Rebirth Expansion" or "Enhanced: Isle of Siptah"
+        // Also strip common expansion/DLC indicators
         cleaned = cleaned
             .replace(/\b(ultimate|deluxe|game of the year|goty|standard|digital deluxe|complete|enhanced|remastered|director's cut|anniversary)\s*(edition)?\b/gi, '')
-            .replace(/\s*[:|]\s*(rebirth|expansion|dlc|season pass|enhanced|isle of .*)\s*\w*/gi, '') // improved regex
+            .replace(/\s*[:|]\s*(rebirth|expansion|dlc|season pass|enhanced|isle of .*)\s*\w*/gi, '')
             .trim();
 
         // Convert all non‑alphanumeric chars to a single hyphen
