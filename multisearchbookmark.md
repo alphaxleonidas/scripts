@@ -5,11 +5,11 @@ javascript:(function(){
 
    /* 1. Default Search Engines */
    const DEFAULT_ENGINES = [
-     { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com/app?q=%s', checked: true },
+     { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai/search?q=%s', checked: false },
      { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/?q=%s', checked: true },
      { id: 'brave', name: 'Brave AI', url: 'https://search.brave.com/ask?q=%s', checked: true },
      { id: 'google_ai', name: 'Google AI', url: 'https://www.google.com/search?udm=50&q=%s', checked: true },
-     { id: 'perplexity', name: 'Perplexity', url: 'https://www.perplexity.ai/search?q=%s', checked: false }
+     { id: 'gemini', name: 'Google Gemini', url: 'https://gemini.google.com/app?q=%s', checked: truei }
    ];
 
    /* 2. Load Preferences from LocalStorage */
