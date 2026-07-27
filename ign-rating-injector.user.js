@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.5.2
+// @version      1.5.4
 // @description  Displays IGN review score, user ratings, and the matched IGN game title directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
 // @match        https://*.steampowered.com/*
@@ -32,6 +32,7 @@
         'jurassic world evolution 3: rebirth expansion': ['jurassic world evolution 3'],
         'conan exiles enhanced: isle of siptah': ['conan exiles'],
         'ratchet & clank: rift apart': ['ratchet and clank rift apart'],
+        'brütal legend': ['brutal legend', 'brtal-legend'],
         'brutal legend': ['brtal-legend'],
         'guilty gear xrd rev 2': ['guilty gear xrd revelator 2'],
         'guilty gear': ['guilty-gear-1998'],
@@ -44,7 +45,11 @@
 
         let cleaned = noPeriods
             .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '') 
+            .replace(/[\u0300-\u036f]/g, '')  
+            .replace(/ü/g, 'u').replace(/Ü/g, 'u')
+            .replace(/ä/g, 'a').replace(/Ä/g, 'a')
+            .replace(/ö/g, 'o').replace(/Ö/g, 'o')
+            .replace(/ß/g, 'ss')
             .replace(/Δ/g, 'delta')
             .replace(/Ω/g, 'omega');
 
@@ -159,18 +164,20 @@
     }
 
     // 4. Render Rating Badge
-    function renderRatingBadge(ignScore, userScore, ignUrl, pageTitleStr) {
+    function renderRatingBadge(ignScore, userScore, ignUrl, pageTitleStr, fetchedGameTitle = '') {
         const targetObj = getTargetInsertionPoint();
         if (!targetObj) return;
 
         const existingBadge = document.querySelector('.ign_rating_row');
         if (existingBadge) existingBadge.remove();
 
-        // Extract a clean display name from the final working URL slug
-        let slugPart = ignUrl.split('/games/')[1] || pageTitleStr;
-        let displayName = slugPart.replace(/-/g, ' ');
-        // Capitalize words nicely for the sub-link display
-        displayName = displayName.replace(/\b\w/g, l => l.toUpperCase());
+        // Use the exact title scraped from IGN's h1 tag if available, otherwise fall back to slug/page title cleanup
+        let displayName = fetchedGameTitle;
+        if (!displayName) {
+            let slugPart = ignUrl.split('/games/')[1] || pageTitleStr;
+            displayName = slugPart.replace(/-/g, ' ');
+            displayName = displayName.replace(/\b\w/g, l => l.toUpperCase());
+        }
 
         const badgeCtn = document.createElement('div');
         badgeCtn.className = 'ign_rating_row';
@@ -288,6 +295,13 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, 'text/html');
 
+                    // Extract the exact title from the IGN page's header element
+                    let fetchedGameTitle = '';
+                    const h1TitleEl = doc.querySelector('h1[data-cy="object-header-display-title"]') || doc.querySelector('h1.display-title');
+                    if (h1TitleEl && h1TitleEl.textContent.trim()) {
+                        fetchedGameTitle = h1TitleEl.textContent.trim();
+                    }
+
                     let ignScore = 'N/A';
                     let userScore = 'N/A';
 
@@ -319,7 +333,7 @@
                         }
                     }
 
-                    renderRatingBadge(ignScore, userScore, targetUrl, gameTitle);
+                    renderRatingBadge(ignScore, userScore, targetUrl, gameTitle, fetchedGameTitle);
                     isFetching = false;
                 },
                 onerror: function () {
