@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.9
+// @version      1.0.10
 // @description  Injects high-res ESRB ratings, icons, descriptions, publisher names, and links into Steam and Epic Games Store with strict title validation and exact-match prioritization.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
@@ -28,7 +28,8 @@
         'ea sports fc 24': ['fifa 24', 'fifa 23'],
         'eafc 24': ['fifa 24'],
         'jurassic world evolution 3': ['jurassic world evolution 3: rebirth expansion'],
-        'conan exiles': ['conan exiles enhanced: isle of siptah']
+        'conan exiles': ['conan exiles enhanced: isle of siptah'],
+        'brutal legend': ['brütal legend'] // Added explicit alias mapping for special characters
     };
 
     const ESRB_ICONS = {
@@ -40,6 +41,16 @@
         'adults only 18+': 'https://www.esrb.org/wp-content/uploads/2019/05/AO.svg',
         'rating pending': 'https://www.esrb.org/wp-content/uploads/2019/05/RP.svg'
     };
+
+    // Helper to safely normalize strings by stripping diacritics (e.g., ü -> u)
+    function normalizeStr(str) {
+        return str
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '')
+            .trim();
+    }
 
     function getGameTitle() {
         if (IS_STEAM) {
@@ -84,9 +95,13 @@
     function buildSearchQueries(rawTitle) {
         const queries = [rawTitle];
         const lower = rawTitle.toLowerCase();
+        const normalizedLower = normalizeStr(rawTitle);
 
         if (TITLE_ALIASES[lower]) {
             queries.push(...TITLE_ALIASES[lower]);
+        }
+        if (TITLE_ALIASES[normalizedLower]) {
+            queries.push(...TITLE_ALIASES[normalizedLower]);
         }
 
         const cleanedTitle = rawTitle
@@ -206,8 +221,7 @@
     function evaluateBestMatch(results, searchTitle) {
         if (!results || results.length === 0) return null;
 
-        const targetNormalized = searchTitle.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-        const normalizeStr = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+        const targetNormalized = normalizeStr(searchTitle);
 
         const absoluteExactMatch = results.find(r => normalizeStr(r.title) === targetNormalized);
         if (absoluteExactMatch) {
@@ -298,7 +312,6 @@
                 box-sizing: border-box;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
 
-                <!-- Fixed: Changed justify-content from flex-end to flex-start -->
                 <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 8px;">
                     <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" title="View details on ESRB.org" style="
                         font-size: 11px;
