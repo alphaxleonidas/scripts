@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.2
-// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with dynamic single-page navigation support.
+// @version      1.0.3
+// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with strict title validation.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -21,7 +21,6 @@
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
-    // Expanded aliases to handle common full-title variations
     const TITLE_ALIASES = {
         'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
         'cs2': ['counter-strike: global offensive'],
@@ -29,7 +28,7 @@
         'ea sports fc 24': ['fifa 24', 'fifa 23'],
         'eafc 24': ['fifa 24'],
         'jurassic world evolution 3': ['jurassic world evolution 3: rebirth expansion'],
-        'conan exiles': ['conan exiles enhanced: isle of siptah']  // map full title to base name
+        'conan exiles': ['conan exiles enhanced: isle of siptah']
     };
 
     const ESRB_ICONS = {
@@ -74,8 +73,8 @@
 
         if (IS_EPIC) {
             const h1El = document.querySelector('h1') || 
-                         document.querySelector('[data-testid="pdp-title"]') ||
-                         document.querySelector('[class*="Title-"]');
+                       document.querySelector('[data-testid="pdp-title"]') ||
+                       document.querySelector('[class*="Title-"]');
             if (h1El && h1El.textContent.trim()) return h1El.textContent.trim();
         }
 
@@ -86,14 +85,12 @@
         const queries = [rawTitle];
         const lower = rawTitle.toLowerCase();
 
-        // Direct alias lookup
         if (TITLE_ALIASES[lower]) {
             queries.push(...TITLE_ALIASES[lower]);
         }
 
-        // Clean the title: strip colon suffix and common qualifiers
         const cleanedTitle = rawTitle
-            .replace(/\s*:.*$/, '')  // remove colon and everything after
+            .replace(/\s*:.*$/, '')
             .replace(/\s*(?:Ultimate|GOTY|Game of the Year|Deluxe|Standard|Enhanced|Definitive|Remastered|Digital Deluxe|Rebirth Expansion|Expansion|DLC)\s*(?:Edition)?/gi, '')
             .replace(/\s*\(.*\)$/, '')
             .trim();
@@ -180,9 +177,28 @@
         if (!results || results.length === 0) return null;
 
         const targetLower = searchTitle.toLowerCase().trim();
+        // Extract alphanumeric words for fuzzy relevancy checking
+        const targetWords = targetLower.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1);
 
-        // 1. Exact match
-        const exactMatch = results.find(r => r.title.toLowerCase().trim() === targetLower);
+        // Helper to check if a result title is reasonably related to the target title
+        const isRelevantMatch = (resultTitle) => {
+            const resLower = resultTitle.toLowerCase().trim();
+            if (resLower === targetLower || resLower.includes(targetLower) || targetLower.includes(resLower)) {
+                return true;
+            }
+            if (targetWords.length === 0) return false;
+            const resWords = resLower.replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+            const matchedCount = targetWords.filter(w => resWords.includes(w)).length;
+            // Require at least a strong token overlap percentage to prevent completely different games matching
+            return (matchedCount / targetWords.length) >= 0.5;
+        };
+
+        // Filter results down to only relevant ones
+        const validResults = results.filter(r => isRelevantMatch(r.title));
+        if (validResults.length === 0) return null;
+
+        // 1. Exact match within valid results
+        const exactMatch = validResults.find(r => r.title.toLowerCase().trim() === targetLower);
         if (exactMatch) {
             return {
                 rating: exactMatch.rating,
@@ -202,7 +218,7 @@
             { key: 'ps4', label: 'PS4' }
         ];
         for (const p of platforms) {
-            const match = results.find(r => r.platforms.toLowerCase().includes(p.key));
+            const match = validResults.find(r => r.platforms.toLowerCase().includes(p.key));
             if (match) {
                 return {
                     rating: match.rating,
@@ -214,28 +230,13 @@
             }
         }
 
-        // 3. Partial match (title contains searchTitle, or vice versa)
-        const partialMatch = results.find(r => {
-            const titleLower = r.title.toLowerCase().trim();
-            return titleLower.includes(targetLower) || targetLower.includes(titleLower);
-        });
-        if (partialMatch) {
-            return {
-                rating: partialMatch.rating,
-                platform: 'Console/Global',
-                matchedTitle: partialMatch.title,
-                descriptors: partialMatch.descriptors,
-                url: partialMatch.url
-            };
-        }
-
-        // 4. Last resort: take the first result
+        // 3. Take the first valid relevant result
         return {
-            rating: results[0].rating,
+            rating: validResults[0].rating,
             platform: 'Console/Global',
-            matchedTitle: results[0].title,
-            descriptors: results[0].descriptors,
-            url: results[0].url
+            matchedTitle: validResults[0].title,
+            descriptors: validResults[0].descriptors,
+            url: validResults[0].url
         };
     }
 
