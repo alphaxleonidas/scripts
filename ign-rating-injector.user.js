@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Steam & Epic IGN Rating Display
 // @namespace    http://tampermonkey.net/
-// @version      1.3.8
-// @description  Displays IGN review score and user ratings directly above the game image on Steam's right sidebar and on Epic Games Store.
+// @version      1.5.2
+// @description  Displays IGN review score, user ratings, and the matched IGN game title directly above the game image on Steam's right sidebar and on Epic Games Store.
 // @author       Leonidas
-// @match        *://*.steampowered.com/*
-// @match        *://*.epicgames.com/*
+// @match        https://*.steampowered.com/*
+// @match        https://*.epicgames.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      www.ign.com
 // @connect      ign.com
@@ -21,7 +21,7 @@
     const IS_STEAM = window.location.hostname.includes('steampowered.com');
     const IS_EPIC = window.location.hostname.includes('epicgames.com');
 
-    // ---- Title aliases for games with common name changes ----
+    // ---- Title aliases for unpredictable abbreviations or release year differentiation ----
     const TITLE_ALIASES = {
         'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
         'cs2': ['counter-strike: global offensive'],
@@ -31,42 +31,55 @@
         'final fantasy vii remake intergrade': ['final fantasy vii remake'],
         'jurassic world evolution 3: rebirth expansion': ['jurassic world evolution 3'],
         'conan exiles enhanced: isle of siptah': ['conan exiles'],
-        // Fix for Ratchet & Clank: Rift Apart → ratchet-and-clank-rift-apart
-        'ratchet & clank: rift apart': ['ratchet and clank rift apart']
+        'ratchet & clank: rift apart': ['ratchet and clank rift apart'],
+        'brutal legend': ['brtal-legend'],
+        'guilty gear xrd rev 2': ['guilty gear xrd revelator 2'],
+        'guilty gear': ['guilty-gear-1998'],
+        'grand theft auto v': ['grand theft auto 5', 'gta v', 'gta 5']
     };
 
     // 1. Slug generator for IGN URLs
     function createIgnSlugs(title) {
-        // Normalize Unicode
-        let cleaned = title
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
+        let noPeriods = title.replace(/\./g, '');
 
-        // Strip common edition words (remastered is stripped, remake is NOT)
-        // Also strip common expansion/DLC indicators
+        let cleaned = noPeriods
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') 
+            .replace(/Δ/g, 'delta')
+            .replace(/Ω/g, 'omega');
+
         cleaned = cleaned
             .replace(/\b(ultimate|deluxe|game of the year|goty|standard|digital deluxe|complete|enhanced|remastered|director's cut|anniversary)\s*(edition)?\b/gi, '')
             .replace(/\s*[:|]\s*(rebirth|expansion|dlc|season pass|enhanced|isle of .*)\s*\w*/gi, '')
             .trim();
 
-        // Convert all non‑alphanumeric chars to a single hyphen
         let slug = cleaned
             .replace(/[^a-z0-9]/gi, '-')
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '')
             .toLowerCase();
 
-        // Variations for '&' handling
         const primarySlug = slug.replace(/&/g, 'and');
         const secondarySlug = slug.replace(/&/g, '');
-
-        // Optional: strip a short prefix (e.g., "Tom Clancy's")
+        
         const noPrefix = cleaned.replace(/^[a-z0-9]{2,4}\s+/i, '');
         const tertiarySlug = (noPrefix !== cleaned && noPrefix.length > 0)
             ? noPrefix.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').toLowerCase().replace(/&/g, 'and')
             : null;
 
-        return { primarySlug, secondarySlug, tertiarySlug };
+        let aggressiveDropSlug = noPeriods
+            .replace(/[^\x00-\x7F]/g, '')
+            .replace(/[^a-z0-9]/gi, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, '')
+            .toLowerCase();
+
+        return { 
+            primarySlug, 
+            secondarySlug, 
+            tertiarySlug, 
+            aggressiveDropSlug: (aggressiveDropSlug !== primarySlug) ? aggressiveDropSlug : null 
+        };
     }
 
     // 2. Extracts title reliably across standard, mobile, and age-gate pages
@@ -75,7 +88,6 @@
             const titleEl = document.getElementById('appHubAppName') ||
                             document.querySelector('.page_title_area .apphub_AppName') ||
                             document.querySelector('.app_header_content .app_name');
-
             if (titleEl && titleEl.textContent.trim()) {
                 return titleEl.textContent.trim();
             }
@@ -118,13 +130,12 @@
             const headerImage = document.querySelector('.game_header_image_full') ||
                                 document.querySelector('.game_header_image_ctn') ||
                                 document.querySelector('.glance_ctn_responsive .game_header_image_full');
-
             if (headerImage) {
                 return { element: headerImage, position: 'before' };
             }
 
             const glanceCtn = document.querySelector('.glance_ctn_responsive') ||
-                               document.querySelector('.game_meta_data');
+                              document.querySelector('.game_meta_data');
             if (glanceCtn) {
                 return { element: glanceCtn, position: 'prepend' };
             }
@@ -148,16 +159,21 @@
     }
 
     // 4. Render Rating Badge
-    function renderRatingBadge(ignScore, userScore, ignUrl) {
+    function renderRatingBadge(ignScore, userScore, ignUrl, pageTitleStr) {
         const targetObj = getTargetInsertionPoint();
         if (!targetObj) return;
 
         const existingBadge = document.querySelector('.ign_rating_row');
         if (existingBadge) existingBadge.remove();
 
+        // Extract a clean display name from the final working URL slug
+        let slugPart = ignUrl.split('/games/')[1] || pageTitleStr;
+        let displayName = slugPart.replace(/-/g, ' ');
+        // Capitalize words nicely for the sub-link display
+        displayName = displayName.replace(/\b\w/g, l => l.toUpperCase());
+
         const badgeCtn = document.createElement('div');
         badgeCtn.className = 'ign_rating_row';
-
         badgeCtn.style.cssText = `
             margin: 10px auto;
             padding: 10px 14px;
@@ -175,7 +191,7 @@
         `;
 
         badgeCtn.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; max-width: 110px; overflow: hidden;">
                 <a href="${encodeURI(ignUrl)}" target="_blank" rel="noopener noreferrer" style="
                     font-weight: bold;
                     color: #ff3e3e;
@@ -187,17 +203,25 @@
                 ">
                     IGN Ratings ↗
                 </a>
+                <a href="${encodeURI(ignUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(displayName)}" style="
+                    font-size: 10px;
+                    color: #b8b8b8;
+                    text-decoration: none;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    width: 100%;
+                    margin-top: 3px;
+                ">
+                    ${escapeHtml(displayName)} ↗
+                </a>
             </div>
-
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 26px;"></div>
-
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 32px;"></div>
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(ignScore)}</span>
                 <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; margin-top: 3px;">IGN Score</span>
             </div>
-
-            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 26px;"></div>
-
+            <div style="border-left: 1px solid rgba(255, 255, 255, 0.2); height: 32px;"></div>
             <div style="display: flex; flex-direction: column; align-items: center;">
                 <span style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1;">${escapeHtml(userScore)}</span>
                 <span style="font-size: 9px; color: #8f98a0; text-transform: uppercase; font-weight: bold; margin-top: 3px;">User Rating</span>
@@ -219,16 +243,18 @@
     // 5. Network Request with alias support
     function fetchIGNRatings(gameTitle) {
         isFetching = true;
+        const slugsObj = createIgnSlugs(gameTitle);
+        let slugs = [slugsObj.primarySlug, slugsObj.secondarySlug, slugsObj.tertiarySlug, slugsObj.aggressiveDropSlug].filter(Boolean);
 
-        const { primarySlug, secondarySlug, tertiarySlug } = createIgnSlugs(gameTitle);
-        let slugs = [primarySlug, secondarySlug, tertiarySlug].filter(Boolean);
-
-        const lowerTitle = gameTitle.toLowerCase();
+        const lowerTitle = gameTitle.toLowerCase().trim();
         if (TITLE_ALIASES.hasOwnProperty(lowerTitle)) {
             const aliases = TITLE_ALIASES[lowerTitle];
             for (const alias of aliases) {
+                if (!alias.includes(' ')) {
+                    slugs.push(alias);
+                }
                 const aliasSlugs = createIgnSlugs(alias);
-                const toAdd = [aliasSlugs.primarySlug, aliasSlugs.secondarySlug, aliasSlugs.tertiarySlug].filter(Boolean);
+                const toAdd = [aliasSlugs.primarySlug, aliasSlugs.secondarySlug, aliasSlugs.tertiarySlug, aliasSlugs.aggressiveDropSlug].filter(Boolean);
                 slugs = slugs.concat(toAdd);
             }
         }
@@ -238,7 +264,7 @@
 
         function requestPage(index = 0) {
             if (index >= urlsToTry.length) {
-                renderRatingBadge('N/A', 'N/A', urlsToTry[0] || 'https://www.ign.com');
+                renderRatingBadge('N/A', 'N/A', urlsToTry[0] || 'https://www.ign.com', gameTitle);
                 isFetching = false;
                 return;
             }
@@ -253,9 +279,8 @@
                         requestPage(index + 1);
                         return;
                     }
-
                     if (response.status === 404) {
-                        renderRatingBadge('N/A', 'N/A', targetUrl);
+                        renderRatingBadge('N/A', 'N/A', targetUrl, gameTitle);
                         isFetching = false;
                         return;
                     }
@@ -294,11 +319,11 @@
                         }
                     }
 
-                    renderRatingBadge(ignScore, userScore, targetUrl);
+                    renderRatingBadge(ignScore, userScore, targetUrl, gameTitle);
                     isFetching = false;
                 },
                 onerror: function () {
-                    renderRatingBadge('Error', 'Error', targetUrl);
+                    renderRatingBadge('Error', 'Error', targetUrl, gameTitle);
                     isFetching = false;
                 }
             });
@@ -332,6 +357,5 @@
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(init, 250);
     });
-
     observer.observe(document.body, { childList: true, subtree: true });
 })();
