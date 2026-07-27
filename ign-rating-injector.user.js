@@ -2,7 +2,7 @@
 // @name         Steam & Epic IGN Rating & Extra Info Display
 // @namespace    http://tampermonkey.net/
 // @version      1.9.2
-// @description  Displays IGN review scores, user ratings, clickable HLTB with dynamic category data, Developer, and prominent ESRB rating with content descriptors.
+// @description  Displays IGN review scores, user ratings, clickable HLTB times with Leisure time.
 // @author       Leonidas
 // @match        https://*.steampowered.com/*
 // @match        https://*.epicgames.com/*
