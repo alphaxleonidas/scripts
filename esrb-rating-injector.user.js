@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.5
-// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with strict title validation and deep-result exact-match prioritization.
+// @version      1.0.9
+// @description  Injects high-res ESRB ratings, icons, descriptions, publisher names, and links into Steam and Epic Games Store with strict title validation and exact-match prioritization.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -72,7 +72,7 @@
         }
 
         if (IS_EPIC) {
-            const h1El = document.querySelector('h1') || 
+            const h1El = document.querySelector('h1') ||
                        document.querySelector('[data-testid="pdp-title"]') ||
                        document.querySelector('[class*="Title-"]');
             if (h1El && h1El.textContent.trim()) return h1El.textContent.trim();
@@ -117,17 +117,17 @@
                             const results = [];
 
                             const gameEntries = doc.querySelectorAll('.game, article, tr, .search-result');
-                            
+
                             gameEntries.forEach(card => {
                                 const link = card.querySelector('a[href*="/ratings/"]') || card.querySelector('a');
                                 if (!link) return;
 
                                 const title = link.innerText.trim();
                                 const textContent = card.innerText || '';
+
                                 const img = card.querySelector('img[src*="rating"], img[alt*="Rating"], img[src*="uploads"]');
-                                
                                 let rating = img ? (img.alt || img.src.split('/').pop().replace(/\..*$/, '')) : '';
-                                
+
                                 if (!rating) {
                                     if (/everyone 10\+/i.test(textContent)) rating = 'Everyone 10+';
                                     else if (/everyone/i.test(textContent)) rating = 'Everyone';
@@ -138,13 +138,13 @@
                                 }
 
                                 const commonTerms = [
-                                    'Alcohol Reference', 'Animated Blood', 'Blood', 'Blood and Gore', 
-                                    'Cartoon Violence', 'Comic Mischief', 'Crude Humor', 'Drug Reference', 
-                                    'Fantasy Violence', 'Intense Violence', 'Language', 'Lyrics', 
-                                    'Nudity', 'Partial Nudity', 'Real Gambling', 'Sexual Content', 
-                                    'Sexual Themes', 'Sexual Violence', 'Simulated Gambling', 
-                                    'Strong Language', 'Strong Lyrics', 'Strong Sexual Content', 
-                                    'Suggestive Themes', 'Tobacco Reference', 'Use of Alcohol', 
+                                    'Alcohol Reference', 'Animated Blood', 'Blood', 'Blood and Gore',
+                                    'Cartoon Violence', 'Comic Mischief', 'Crude Humor', 'Drug Reference',
+                                    'Fantasy Violence', 'Intense Violence', 'Language', 'Lyrics',
+                                    'Nudity', 'Partial Nudity', 'Real Gambling', 'Sexual Content',
+                                    'Sexual Themes', 'Sexual Violence', 'Simulated Gambling',
+                                    'Strong Language', 'Strong Lyrics', 'Strong Sexual Content',
+                                    'Suggestive Themes', 'Tobacco Reference', 'Use of Alcohol',
                                     'Use of Drugs', 'Use of Tobacco', 'Violence'
                                 ];
                                 const descriptors = commonTerms.filter(term => new RegExp(`\\b${term}\\b`, 'i').test(textContent));
@@ -173,27 +173,53 @@
         });
     }
 
+    function fetchPublisher(url) {
+        return new Promise((resolve) => {
+            if (!url) {
+                resolve('');
+                return;
+            }
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: url,
+                onload: (response) => {
+                    if (response.status === 200) {
+                        try {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(response.responseText, 'text/html');
+                            const subtitleEl = doc.querySelector('.subtitle');
+                            if (subtitleEl && subtitleEl.textContent.trim()) {
+                                resolve(subtitleEl.textContent.trim());
+                                return;
+                            }
+                        } catch (e) {
+                            console.error('Publisher Parse Error:', e);
+                        }
+                    }
+                    resolve('');
+                },
+                onerror: () => resolve('')
+            });
+        });
+    }
+
     function evaluateBestMatch(results, searchTitle) {
         if (!results || results.length === 0) return null;
 
         const targetNormalized = searchTitle.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-
-        // Helper to normalize strings for exact comparisons (ignoring punctuation/spaces like colons)
         const normalizeStr = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 
-        // 1. Check for absolute normalized exact match across ALL parsed results immediately
         const absoluteExactMatch = results.find(r => normalizeStr(r.title) === targetNormalized);
         if (absoluteExactMatch) {
             return {
                 rating: absoluteExactMatch.rating,
-                platform: 'PC/Global',
+                publisher: '',
                 matchedTitle: absoluteExactMatch.title,
                 descriptors: absoluteExactMatch.descriptors,
                 url: absoluteExactMatch.url
             };
         }
 
-        // Extract alphanumeric words for fuzzy relevancy checking
         const targetWords = searchTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1);
 
         const isRelevantMatch = (resultTitle) => {
@@ -202,7 +228,6 @@
                 return true;
             }
             if (targetWords.length === 0) return false;
-            const resWords = resNorm.split('');
             const matchedCount = targetWords.filter(w => resNorm.includes(w)).length;
             return (matchedCount / targetWords.length) >= 0.5;
         };
@@ -210,7 +235,6 @@
         const validResults = results.filter(r => isRelevantMatch(r.title));
         if (validResults.length === 0) return null;
 
-        // 2. Platform preference lookup within valid filtered results
         const platforms = [
             { key: 'pc', label: 'PC' },
             { key: 'playstation 5', label: 'PS5' },
@@ -223,7 +247,7 @@
             if (match) {
                 return {
                     rating: match.rating,
-                    platform: p.label,
+                    publisher: '',
                     matchedTitle: match.title,
                     descriptors: match.descriptors,
                     url: match.url
@@ -231,10 +255,9 @@
             }
         }
 
-        // 3. Fallback to the first valid relevant result found
         return {
             rating: validResults[0].rating,
-            platform: 'Console/Global',
+            publisher: '',
             matchedTitle: validResults[0].title,
             descriptors: validResults[0].descriptors,
             url: validResults[0].url
@@ -257,6 +280,11 @@
             `;
         }
 
+        let publisherHtml = '';
+        if (data.publisher) {
+            publisherHtml = `<div class="subtitle" style="font-size: 11px; color: #8f98a0; margin-top: 2px;">${data.publisher}</div>`;
+        }
+
         const badgeHtml = `
             <div id="store-esrb-badge" style="
                 background: rgba(18, 22, 28, 0.85);
@@ -269,20 +297,20 @@
                 width: 100%;
                 box-sizing: border-box;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+
+                <!-- Fixed: Changed justify-content from flex-end to flex-start -->
+                <div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 8px;">
                     <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" title="View details on ESRB.org" style="
-                        font-size: 11px; 
-                        font-weight: bold; 
-                        color: #67c1f5; 
-                        text-decoration: none; 
+                        font-size: 11px;
+                        font-weight: bold;
+                        color: #67c1f5;
+                        text-decoration: none;
                         letter-spacing: 0.6px;
                         display: flex;
                         align-items: center;
                         gap: 4px;">
                         ESRB RATING ↗
                     </a>
-                    <span style="font-size: 10px; background: #2a475e; color: #67c1f5; padding: 2px 8px; border-radius: 3px; font-weight: bold;">${data.platform}</span>
                 </div>
 
                 <div style="display: flex; align-items: flex-start; gap: 14px;">
@@ -300,6 +328,7 @@
                                     ${data.matchedTitle} ↗
                                 </a>
                             </div>` : ''}
+                        ${publisherHtml}
                         ${descriptionHtml}
                     </div>
                 </div>
@@ -327,11 +356,14 @@
         }
 
         if (match) {
+            if (match.url) {
+                match.publisher = await fetchPublisher(match.url);
+            }
             injectUI(match);
         } else {
             injectUI({
                 rating: 'Not Rated',
-                platform: 'N/A',
+                publisher: '',
                 matchedTitle: '',
                 descriptors: [],
                 url: 'https://www.esrb.org'
