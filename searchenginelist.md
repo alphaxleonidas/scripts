@@ -25,7 +25,10 @@ https://www.perplexity.ai/search?q=%s
 ```
 https://www.virustotal.com/gui/search?query=%s
 ```
-
+## URLvoid
+```
+https://www.urlvoid.com/scan/%s
+```
 ## Copilot (Sign-up required)
 ```
 https://copilot.microsoft.com/?q=%s
