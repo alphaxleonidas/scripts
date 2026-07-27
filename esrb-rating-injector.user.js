@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Steam & Epic Games ESRB Rating Injector
 // @namespace    https://github.com/
-// @version      1.0.3
-// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with strict title validation.
+// @version      1.0.5
+// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with strict title validation and deep-result exact-match prioritization.
 // @author       Leonidas
 // @match        *://*.steampowered.com/*
 // @match        *://*.epicgames.com/*
@@ -176,40 +176,41 @@
     function evaluateBestMatch(results, searchTitle) {
         if (!results || results.length === 0) return null;
 
-        const targetLower = searchTitle.toLowerCase().trim();
-        // Extract alphanumeric words for fuzzy relevancy checking
-        const targetWords = targetLower.replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1);
+        const targetNormalized = searchTitle.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 
-        // Helper to check if a result title is reasonably related to the target title
-        const isRelevantMatch = (resultTitle) => {
-            const resLower = resultTitle.toLowerCase().trim();
-            if (resLower === targetLower || resLower.includes(targetLower) || targetLower.includes(resLower)) {
-                return true;
-            }
-            if (targetWords.length === 0) return false;
-            const resWords = resLower.replace(/[^a-z0-9\s]/g, '').split(/\s+/);
-            const matchedCount = targetWords.filter(w => resWords.includes(w)).length;
-            // Require at least a strong token overlap percentage to prevent completely different games matching
-            return (matchedCount / targetWords.length) >= 0.5;
-        };
+        // Helper to normalize strings for exact comparisons (ignoring punctuation/spaces like colons)
+        const normalizeStr = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
 
-        // Filter results down to only relevant ones
-        const validResults = results.filter(r => isRelevantMatch(r.title));
-        if (validResults.length === 0) return null;
-
-        // 1. Exact match within valid results
-        const exactMatch = validResults.find(r => r.title.toLowerCase().trim() === targetLower);
-        if (exactMatch) {
+        // 1. Check for absolute normalized exact match across ALL parsed results immediately
+        const absoluteExactMatch = results.find(r => normalizeStr(r.title) === targetNormalized);
+        if (absoluteExactMatch) {
             return {
-                rating: exactMatch.rating,
-                platform: 'PC',
-                matchedTitle: exactMatch.title,
-                descriptors: exactMatch.descriptors,
-                url: exactMatch.url
+                rating: absoluteExactMatch.rating,
+                platform: 'PC/Global',
+                matchedTitle: absoluteExactMatch.title,
+                descriptors: absoluteExactMatch.descriptors,
+                url: absoluteExactMatch.url
             };
         }
 
-        // 2. Platform preference (PC, PS5, PS4)
+        // Extract alphanumeric words for fuzzy relevancy checking
+        const targetWords = searchTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 1);
+
+        const isRelevantMatch = (resultTitle) => {
+            const resNorm = normalizeStr(resultTitle);
+            if (resNorm === targetNormalized || resNorm.includes(targetNormalized) || targetNormalized.includes(resNorm)) {
+                return true;
+            }
+            if (targetWords.length === 0) return false;
+            const resWords = resNorm.split('');
+            const matchedCount = targetWords.filter(w => resNorm.includes(w)).length;
+            return (matchedCount / targetWords.length) >= 0.5;
+        };
+
+        const validResults = results.filter(r => isRelevantMatch(r.title));
+        if (validResults.length === 0) return null;
+
+        // 2. Platform preference lookup within valid filtered results
         const platforms = [
             { key: 'pc', label: 'PC' },
             { key: 'playstation 5', label: 'PS5' },
@@ -230,7 +231,7 @@
             }
         }
 
-        // 3. Take the first valid relevant result
+        // 3. Fallback to the first valid relevant result found
         return {
             rating: validResults[0].rating,
             platform: 'Console/Global',
