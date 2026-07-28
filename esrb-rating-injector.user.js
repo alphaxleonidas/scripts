@@ -1,109 +1,483 @@
 // ==UserScript==
-// @name         Search Each Line in New Tab
-// @namespace    http://tampermonkey.net/
-// @version      1.4
-// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme. Cleans timestamps and list numbering from selected text.
+// @name         Steam & Epic Games ESRB Rating Injector
+// @namespace    https://github.com/
+// @version      1.0.6
+// @description  Injects high-res ESRB ratings, icons, descriptions, and links into Steam and Epic Games Store with dynamic single-page navigation support.
 // @author       Leonidas
-// @match        *://www.youtube.com/*
-// @grant        GM_openInTab
+// @match        *://*.steampowered.com/*
+// @match        *://*.epicgames.com/*
+// @grant        GM_xmlhttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
 // @grant        GM_registerMenuCommand
-// @run-at       document-end
+// @connect      esrb.org
+// @connect      www.esrb.org
 // ==/UserScript==
 
-(function () {
-  'use strict';
+(function() {
+    'use strict';
 
-  // Stop if we're inside an embedded player (iframe)
-  if (window.top !== window.self) return;
+    // ─── DEFAULT CONFIG ──────────────────────────────────────────────
+    const DEFAULT_POSITION = 'sidebar';
 
-  // --- Theme‑adaptive styles ---
-  const style = document.createElement('style');
-  style.textContent = `
-    #search-lines-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999999;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font: 14px sans-serif;
-      border: 1px solid;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      /* Light theme (default) */
-      background: rgba(255, 255, 255, 0.85);
-      color: #000;
-      border-color: #ccc;
+    // ─── PERSISTENT STORAGE HELPERS ──────────────────────────────────
+    function getStoredPosition() {
+        return GM_getValue('esrb_position', DEFAULT_POSITION);
     }
 
-    @media (prefers-color-scheme: dark) {
-      #search-lines-btn {
-        background: rgba(40, 40, 40, 0.9);
-        color: #eee;
-        border-color: #555;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-      }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // --- Create the button ---
-  const btn = document.createElement('button');
-  btn.id = 'search-lines-btn';
-  btn.textContent = '🔍';
-  document.documentElement.appendChild(btn);
-
-  // --- Text cleaning function (robust) ---
-  function cleanLine(line) {
-    let cleaned = line;
-
-    // 1. Remove timestamps like 01:12, 1:23:45, etc.
-    cleaned = cleaned.replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, '');
-
-    // 2. Repeatedly strip leading enumeration patterns like "12 - ", "12.", "12)", "12: "
-    //    Also handles leftover separators (dashes, spaces, dots) before the number.
-    let previous;
-    do {
-      previous = cleaned;
-      cleaned = cleaned.replace(/^[\s-–—.]*\d+\s*[-–—.:)]\s*/, '');
-    } while (cleaned !== previous);
-
-    // 3. Trim any remaining leading/trailing separators and whitespace
-    cleaned = cleaned.replace(/^[-–—.\s]+/, '');
-    cleaned = cleaned.replace(/[-–—.\s]+$/, '');
-
-    return cleaned.trim();
-  }
-
-  // --- Click logic ---
-  btn.addEventListener('click', () => {
-    const selection = window.getSelection();
-    const text = selection ? selection.toString().trim() : '';
-    if (!text) {
-      alert('Select some text with multiple lines first.');
-      return;
+    function setStoredPosition(pos) {
+        GM_setValue('esrb_position', pos);
     }
 
-    let lines = text.split(/\r?\n/)
-      .map(l => cleanLine(l))
-      .filter(l => l.length > 0);
+    // ─── MENU COMMAND ─────────────────────────────────────────────────
+    GM_registerMenuCommand('Choose ESRB badge position', function() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 999999; font-family: Arial, sans-serif;
+        `;
+        const box = document.createElement('div');
+        box.style.cssText = `
+            background: #1b2838; color: #c6d4df; padding: 24px; border-radius: 8px;
+            max-width: 420px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        `;
+        const current = getStoredPosition();
+        box.innerHTML = `
+            <h3 style="margin-top:0; color:#fff;">ESRB Badge Position</h3>
+            <p style="font-size:13px; color:#a3aab3;">Choose where the ESRB rating badge should appear.</p>
+            <form id="esrb-pos-form">
+                <label style="display:block; margin:8px 0;">
+                    <input type="radio" name="pos" value="sidebar" ${current === 'sidebar' ? 'checked' : ''}> Sidebar (right column)
+                </label>
+                <label style="display:block; margin:8px 0;">
+                    <input type="radio" name="pos" value="below_title" ${current === 'below_title' ? 'checked' : ''}> Below title
+                </label>
+                <label style="display:block; margin:8px 0;">
+                    <input type="radio" name="pos" value="below_meta" ${current === 'below_meta' ? 'checked' : ''}> Below meta (release, dev)
+                </label>
+                <label style="display:block; margin:8px 0;">
+                    <input type="radio" name="pos" value="above_category_block" ${current === 'above_category_block' ? 'checked' : ''}> Above category block (Single‑player, Achievements, etc.)
+                </label>
+                <label style="display:block; margin:8px 0;">
+                    <input type="radio" name="pos" value="above_meta_rightcol" ${current === 'above_meta_rightcol' ? 'checked' : ''}> Inside right column (top of Current Players, SteamDB, etc.)
+                </label>
+            </form>
+            <div style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end;">
+                <button id="esrb-save-btn" style="background:#67c1f5; border:none; padding:8px 20px; border-radius:4px; color:#1b2838; font-weight:bold; cursor:pointer;">Save</button>
+                <button id="esrb-cancel-btn" style="background:#3a4a5a; border:none; padding:8px 20px; border-radius:4px; color:#c6d4df; cursor:pointer;">Cancel</button>
+            </div>
+        `;
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
 
-    if (lines.length === 0) {
-      alert('No text remaining after cleaning.');
-      return;
-    }
+        const saveBtn = box.querySelector('#esrb-save-btn');
+        const cancelBtn = box.querySelector('#esrb-cancel-btn');
+        const form = box.querySelector('#esrb-pos-form');
 
-    // Open each line as a DuckDuckGo search (adding " steam") in a new tab
-    lines.forEach((line, i) => {
-      const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line + ' steam');
-      setTimeout(() => {
-        GM_openInTab(url, { active: i === 0, setParent: true });
-      }, i * 150);
+        saveBtn.addEventListener('click', function() {
+            const selected = form.querySelector('input[name="pos"]:checked');
+            if (selected) {
+                setStoredPosition(selected.value);
+                window.location.reload();
+            }
+        });
+        cancelBtn.addEventListener('click', function() {
+            overlay.remove();
+        });
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) overlay.remove();
+        });
     });
-  });
 
-  // Optional Tampermonkey menu command
-  GM_registerMenuCommand('Search selected lines in new tabs', () => {
-    btn.click();
-  });
+    // ─── REST OF SCRIPT ──────────────────────────────────────────────
+
+    let isFetching = false;
+    let lastProcessedTitle = '';
+    let debounceTimer = null;
+
+    const IS_STEAM = window.location.hostname.includes('steampowered.com');
+    const IS_EPIC = window.location.hostname.includes('epicgames.com');
+
+    const TITLE_ALIASES = {
+        'counter-strike 2': ['counter-strike: global offensive', 'counter-strike'],
+        'cs2': ['counter-strike: global offensive'],
+        'overwatch 2': ['overwatch'],
+        'ea sports fc 24': ['fifa 24', 'fifa 23'],
+        'eafc 24': ['fifa 24'],
+        'jurassic world evolution 3': ['jurassic world evolution 3: rebirth expansion'],
+        'conan exiles': ['conan exiles enhanced: isle of siptah']
+    };
+
+    const ESRB_ICONS = {
+        'everyone': 'https://www.esrb.org/wp-content/uploads/2019/05/E.svg',
+        'everyone 10+': 'https://www.esrb.org/wp-content/uploads/2019/05/E10plus.svg',
+        'teen': 'https://www.esrb.org/wp-content/uploads/2019/05/T.svg',
+        'mature 17+': 'https://www.esrb.org/wp-content/uploads/2019/05/M.svg',
+        'mature': 'https://www.esrb.org/wp-content/uploads/2019/05/M.svg',
+        'adults only 18+': 'https://www.esrb.org/wp-content/uploads/2019/05/AO.svg',
+        'rating pending': 'https://www.esrb.org/wp-content/uploads/2019/05/RP.svg'
+    };
+
+    function getGameTitle() {
+        if (IS_STEAM) {
+            const titleEl = document.getElementById('appHubAppName') ||
+                            document.querySelector('.page_title_area .apphub_AppName') ||
+                            document.querySelector('.app_header_content .app_name');
+            if (titleEl && titleEl.textContent.trim()) {
+                return titleEl.textContent.trim();
+            }
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle && ogTitle.content) {
+                let title = ogTitle.content.trim()
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title) return title;
+            }
+            if (document.title) {
+                let title = document.title
+                    .replace(/^Save \d+% on /i, '')
+                    .replace(/^Pre-purchase /i, '')
+                    .replace(/ on Steam$/i, '')
+                    .trim();
+                if (title && title !== 'Steam') return title;
+            }
+        }
+        if (IS_EPIC) {
+            const h1El = document.querySelector('h1') || 
+                         document.querySelector('[data-testid="pdp-title"]') ||
+                         document.querySelector('[class*="Title-"]');
+            if (h1El && h1El.textContent.trim()) return h1El.textContent.trim();
+        }
+        return null;
+    }
+
+    function buildSearchQueries(rawTitle) {
+        const queries = [rawTitle];
+        const lower = rawTitle.toLowerCase();
+        if (TITLE_ALIASES[lower]) {
+            queries.push(...TITLE_ALIASES[lower]);
+        }
+        const cleanedTitle = rawTitle
+            .replace(/\s*:.*$/, '')
+            .replace(/\s*(?:Ultimate|GOTY|Game of the Year|Deluxe|Standard|Enhanced|Definitive|Remastered|Digital Deluxe|Rebirth Expansion|Expansion|DLC)\s*(?:Edition)?/gi, '')
+            .replace(/\s*\(.*\)$/, '')
+            .trim();
+        if (cleanedTitle && cleanedTitle !== rawTitle) {
+            queries.push(cleanedTitle);
+        }
+        return [...new Set(queries)];
+    }
+
+    function searchESRB(query) {
+        return new Promise((resolve) => {
+            const url = `https://www.esrb.org/search/?searchKeyword=${encodeURIComponent(query)}`;
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: url,
+                onload: (response) => {
+                    if (response.status === 200) {
+                        try {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(response.responseText, 'text/html');
+                            const results = [];
+                            const gameEntries = doc.querySelectorAll('.game, article, tr, .search-result');
+                            gameEntries.forEach(card => {
+                                const link = card.querySelector('a[href*="/ratings/"]') || card.querySelector('a');
+                                if (!link) return;
+                                const title = link.innerText.trim();
+                                const textContent = card.innerText || '';
+                                const img = card.querySelector('img[src*="rating"], img[alt*="Rating"], img[src*="uploads"]');
+                                let rating = img ? (img.alt || img.src.split('/').pop().replace(/\..*$/, '')) : '';
+                                if (!rating) {
+                                    if (/everyone 10\+/i.test(textContent)) rating = 'Everyone 10+';
+                                    else if (/everyone/i.test(textContent)) rating = 'Everyone';
+                                    else if (/teen/i.test(textContent)) rating = 'Teen';
+                                    else if (/mature 17\+/i.test(textContent)) rating = 'Mature 17+';
+                                    else if (/adults only/i.test(textContent)) rating = 'Adults Only';
+                                    else if (/rating pending/i.test(textContent)) rating = 'Rating Pending';
+                                }
+                                const commonTerms = [
+                                    'Alcohol Reference', 'Animated Blood', 'Blood', 'Blood and Gore',
+                                    'Cartoon Violence', 'Comic Mischief', 'Crude Humor', 'Drug Reference',
+                                    'Fantasy Violence', 'Intense Violence', 'Language', 'Lyrics',
+                                    'Nudity', 'Partial Nudity', 'Real Gambling', 'Sexual Content',
+                                    'Sexual Themes', 'Sexual Violence', 'Simulated Gambling',
+                                    'Strong Language', 'Strong Lyrics', 'Strong Sexual Content',
+                                    'Suggestive Themes', 'Tobacco Reference', 'Use of Alcohol',
+                                    'Use of Drugs', 'Use of Tobacco', 'Violence'
+                                ];
+                                const descriptors = commonTerms.filter(term => new RegExp(`\\b${term}\\b`, 'i').test(textContent));
+                                if (title && rating) {
+                                    results.push({
+                                        title: title,
+                                        rating: rating.replace(/^ESRB\s*/i, ''),
+                                        platforms: textContent,
+                                        descriptors: descriptors,
+                                        url: link.href.startsWith('http') ? link.href : `https://www.esrb.org${link.getAttribute('href')}`
+                                    });
+                                }
+                            });
+                            resolve(results);
+                            return;
+                        } catch (e) {
+                            console.error('ESRB Parse Error:', e);
+                        }
+                    }
+                    resolve([]);
+                },
+                onerror: () => resolve([])
+            });
+        });
+    }
+
+    function evaluateBestMatch(results, searchTitle) {
+        if (!results || results.length === 0) return null;
+        const targetLower = searchTitle.toLowerCase().trim();
+        const exactMatch = results.find(r => r.title.toLowerCase().trim() === targetLower);
+        if (exactMatch) {
+            return {
+                rating: exactMatch.rating,
+                platform: 'PC',
+                matchedTitle: exactMatch.title,
+                descriptors: exactMatch.descriptors,
+                url: exactMatch.url
+            };
+        }
+        const platforms = [
+            { key: 'pc', label: 'PC' },
+            { key: 'playstation 5', label: 'PS5' },
+            { key: 'ps5', label: 'PS5' },
+            { key: 'playstation 4', label: 'PS4' },
+            { key: 'ps4', label: 'PS4' }
+        ];
+        for (const p of platforms) {
+            const match = results.find(r => r.platforms.toLowerCase().includes(p.key));
+            if (match) {
+                return {
+                    rating: match.rating,
+                    platform: p.label,
+                    matchedTitle: match.title,
+                    descriptors: match.descriptors,
+                    url: match.url
+                };
+            }
+        }
+        const partialMatch = results.find(r => {
+            const titleLower = r.title.toLowerCase().trim();
+            return titleLower.includes(targetLower) || targetLower.includes(titleLower);
+        });
+        if (partialMatch) {
+            return {
+                rating: partialMatch.rating,
+                platform: 'Console/Global',
+                matchedTitle: partialMatch.title,
+                descriptors: partialMatch.descriptors,
+                url: partialMatch.url
+            };
+        }
+        return {
+            rating: results[0].rating,
+            platform: 'Console/Global',
+            matchedTitle: results[0].title,
+            descriptors: results[0].descriptors,
+            url: results[0].url
+        };
+    }
+
+    function injectUI(data) {
+        const existingBadge = document.querySelector('#store-esrb-badge');
+        if (existingBadge) existingBadge.remove();
+
+        const ratingKey = data.rating.toLowerCase().trim();
+        const iconUrl = ESRB_ICONS[ratingKey] || '';
+
+        let descriptionHtml = '';
+        if (data.descriptors && data.descriptors.length > 0) {
+            descriptionHtml = `
+                <div style="margin-top: 6px; font-size: 11px; line-height: 1.4; color: #a3aab3;">
+                    <strong style="color: #c6d4df; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Description: </strong>${data.descriptors.join(' • ')}
+                </div>
+            `;
+        }
+
+        const badgeHtml = `
+            <div id="store-esrb-badge" style="
+                background: rgba(18, 22, 28, 0.85);
+                border-left: 4px solid #67c1f5;
+                padding: 12px 14px;
+                margin: 12px 0 16px 0;
+                border-radius: 0 6px 6px 0;
+                font-family: 'Motiva Sans', sans-serif, Arial;
+                color: #acb2b8;
+                width: 100%;
+                box-sizing: border-box;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" title="View details on ESRB.org" style="
+                        font-size: 11px; 
+                        font-weight: bold; 
+                        color: #67c1f5; 
+                        text-decoration: none; 
+                        letter-spacing: 0.6px;
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;">
+                        ESRB RATING ↗
+                    </a>
+                    <span style="font-size: 10px; background: #2a475e; color: #67c1f5; padding: 2px 8px; border-radius: 3px; font-weight: bold;">${data.platform}</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    ${iconUrl ? `
+                        <a href="${data.url || '#'}" target="_blank" rel="noopener" style="display: block; flex-shrink: 0;">
+                            <img src="${iconUrl}" alt="${data.rating}" style="height: 72px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));" />
+                        </a>` : ''}
+                    <div style="flex: 1; min-width: 0; word-break: break-word;">
+                        <div style="font-size: 16px; font-weight: bold; color: #ffffff; line-height: 1.2;">
+                            ${data.rating}
+                        </div>
+                        ${data.matchedTitle ? `
+                            <div style="font-size: 11px; margin-top: 4px; line-height: 1.3;">
+                                <a href="${data.url || 'https://www.esrb.org'}" target="_blank" rel="noopener" style="color: #67c1f5; text-decoration: none;">
+                                    ${data.matchedTitle} ↗
+                                </a>
+                            </div>` : ''}
+                        ${descriptionHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ─── DETERMINE INSERTION TARGET ───────────────────────────────
+        const position = getStoredPosition();
+        let container = null;
+        let insertMode = 'prepend'; // 'prepend' (afterbegin) or 'append' (beforeend)
+
+        // Helper for Steam category block
+        function getCategoryBlock() {
+            return document.querySelector('.block.responsive_apppage_details_left#category_block') ||
+                   document.querySelector('#category_block');
+        }
+
+        // Helper for Steam meta right column
+        function getMetaRightCol() {
+            return document.querySelector('div.rightcol.game_meta_data') ||
+                   document.querySelector('.rightcol.game_meta_data');
+        }
+
+        if (position === 'above_category_block') {
+            const catBlock = getCategoryBlock();
+            if (catBlock) {
+                catBlock.insertAdjacentHTML('beforebegin', badgeHtml);
+                return;
+            } else {
+                // fallback to sidebar
+                container = IS_STEAM ? document.querySelector('.glance_ctn') : document.querySelector('aside');
+                insertMode = 'prepend';
+            }
+        } else if (position === 'above_meta_rightcol') {
+            const metaRight = getMetaRightCol();
+            if (metaRight) {
+                // Insert as the first child of the right column (inside, not before)
+                metaRight.insertAdjacentHTML('afterbegin', badgeHtml);
+                return;
+            } else {
+                // fallback to sidebar
+                container = IS_STEAM ? document.querySelector('.glance_ctn') : document.querySelector('aside');
+                insertMode = 'prepend';
+            }
+        } else if (IS_STEAM) {
+            if (position === 'sidebar') {
+                container = document.querySelector('.glance_ctn') || document.querySelector('.game_meta_data');
+                insertMode = 'prepend';
+            } else if (position === 'below_title') {
+                container = document.querySelector('.apphub_AppName')?.parentElement ||
+                            document.querySelector('.page_title_area') ||
+                            document.querySelector('.app_header_content');
+                insertMode = 'append';
+            } else if (position === 'below_meta') {
+                container = document.querySelector('.game_meta_data') || document.querySelector('.glance_ctn');
+                insertMode = 'append';
+            } else {
+                container = document.querySelector('.glance_ctn') || document.querySelector('.game_meta_data');
+                insertMode = 'prepend';
+            }
+        } else if (IS_EPIC) {
+            // Epic fallback for all positions
+            if (position === 'sidebar' || position === 'above_meta_rightcol' || position === 'above_category_block') {
+                container = document.querySelector('aside') || document.querySelector('[data-testid="pdp-title"]')?.parentElement;
+                insertMode = 'prepend';
+            } else if (position === 'below_title') {
+                container = document.querySelector('h1')?.parentElement || document.querySelector('[data-testid="pdp-title"]')?.parentElement;
+                insertMode = 'append';
+            } else if (position === 'below_meta') {
+                container = document.querySelector('aside') || document.querySelector('[data-testid="pdp-title"]')?.parentElement;
+                insertMode = 'append';
+            } else {
+                container = document.querySelector('aside') || document.querySelector('[data-testid="pdp-title"]')?.parentElement;
+                insertMode = 'prepend';
+            }
+        }
+
+        if (!container) {
+            container = document.body;
+            insertMode = 'append';
+        }
+
+        if (insertMode === 'prepend') {
+            container.insertAdjacentHTML('afterbegin', badgeHtml);
+        } else {
+            container.insertAdjacentHTML('beforeend', badgeHtml);
+        }
+    }
+
+    async function processESRB(title) {
+        isFetching = true;
+        const queries = buildSearchQueries(title);
+        let match = null;
+        for (const q of queries) {
+            const results = await searchESRB(q);
+            match = evaluateBestMatch(results, q);
+            if (match) break;
+        }
+        if (match) {
+            injectUI(match);
+        } else {
+            injectUI({
+                rating: 'Not Rated',
+                platform: 'N/A',
+                matchedTitle: '',
+                descriptors: [],
+                url: 'https://www.esrb.org'
+            });
+        }
+        isFetching = false;
+    }
+
+    function init() {
+        const title = getGameTitle();
+        if (!title) return;
+        if (title !== lastProcessedTitle) {
+            lastProcessedTitle = title;
+            const existingBadge = document.querySelector('#store-esrb-badge');
+            if (existingBadge) existingBadge.remove();
+        }
+        if (!document.querySelector('#store-esrb-badge') && !isFetching) {
+            processESRB(title);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    const observer = new MutationObserver(() => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(init, 250);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 })();
