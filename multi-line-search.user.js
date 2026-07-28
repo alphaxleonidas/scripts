@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Search Each Line in New Tab
 // @namespace    http://tampermonkey.net/
-// @version      1.4
-// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme. Cleans timestamps and list numbering from selected text.
+// @version      1.5
+// @description  Select multiple lines of text, then click the button to open each line in a new DuckDuckGo search tab. Works only on youtube.com (not embedded players). Button adapts to light/dark system theme, cleans timestamps/list numbering, and disables during fullscreen.
 // @author       Leonidas
 // @match        *://www.youtube.com/*
 // @grant        GM_openInTab
@@ -53,6 +53,22 @@
   btn.textContent = '🔍';
   document.documentElement.appendChild(btn);
 
+  // --- Fullscreen handling ---
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function updateButtonVisibility() {
+    btn.style.display = isFullscreen() ? 'none' : '';
+  }
+
+  // Listen for fullscreen changes (standard and Safari/older WebKit)
+  document.addEventListener('fullscreenchange', updateButtonVisibility);
+  document.addEventListener('webkitfullscreenchange', updateButtonVisibility);
+
+  // Set initial visibility
+  updateButtonVisibility();
+
   // --- Text cleaning function (robust) ---
   function cleanLine(line) {
     let cleaned = line;
@@ -61,7 +77,6 @@
     cleaned = cleaned.replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, '');
 
     // 2. Repeatedly strip leading enumeration patterns like "12 - ", "12.", "12)", "12: "
-    //    Also handles leftover separators (dashes, spaces, dots) before the number.
     let previous;
     do {
       previous = cleaned;
@@ -77,6 +92,9 @@
 
   // --- Click logic ---
   btn.addEventListener('click', () => {
+    // Disable entirely when in fullscreen
+    if (isFullscreen()) return;
+
     const selection = window.getSelection();
     const text = selection ? selection.toString().trim() : '';
     if (!text) {
@@ -95,7 +113,6 @@
 
     // Open each line as a DuckDuckGo search (adding " steam") in a new tab
     lines.forEach((line, i) => {
-      // Edit this line to change the search query:
       const url = 'https://www.duckduckgo.com/search?q=' + encodeURIComponent(line + ' steam');
       setTimeout(() => {
         GM_openInTab(url, { active: i === 0, setParent: true });
@@ -103,8 +120,8 @@
     });
   });
 
-  // Optional Tampermonkey menu command
+  // Optional Tampermonkey menu command (also blocked during fullscreen)
   GM_registerMenuCommand('Search selected lines in new tabs', () => {
-    btn.click();
+    btn.click(); // will be no‑op if in fullscreen
   });
 })();
