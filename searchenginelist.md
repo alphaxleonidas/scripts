@@ -45,4 +45,8 @@ https://youglish.com/pronounce/%s/english
 ```
 https://www.openxng.com/search?q=%s
 ```
+## Epic Games Store
+```
+https://store.epicgames.com/browse?q=%s&sortBy=relevancy&sortDir=DESC&count=40
+```
 ## Multi Search Engine: [Link](https://github.com/alphaxleonidas/scripts/blob/main/multisearchbookmark.md)
