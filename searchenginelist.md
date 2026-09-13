@@ -49,4 +49,12 @@ https://www.openxng.com/search?q=%s
 ```
 https://store.epicgames.com/browse?q=%s&sortBy=relevancy&sortDir=DESC&count=40
 ```
+## NixOS Packages
+```
+https://search.nixos.org/packages?channel=unstable&query=%s
+```
+## NixOS Options
+```
+https://search.nixos.org/options?channel=unstable&query=%s&type=options
+```
 ## Multi Search Engine: [Link](https://github.com/alphaxleonidas/scripts/blob/main/multisearchbookmark.md)
