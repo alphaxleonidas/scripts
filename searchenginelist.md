@@ -49,6 +49,10 @@ https://www.openxng.com/search?q=%s
 ```
 https://store.epicgames.com/browse?q=%s&sortBy=relevancy&sortDir=DESC&count=40
 ```
+## Reddit
+```
+https://www.reddit.com/search/?q=%s
+```
 ## NixOS Packages
 ```
 https://search.nixos.org/packages?channel=unstable&query=%s
