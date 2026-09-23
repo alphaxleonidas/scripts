@@ -61,6 +61,10 @@ https://search.nixos.org/packages?channel=unstable&query=%s
 ```
 https://search.nixos.org/options?channel=unstable&query=%s&type=options
 ```
+## Home Manager NixOS
+```
+https://home-manager-options.extranix.com/?query=%s&release=master
+```
 ## Flathub
 ```
 https://flathub.org/en/apps/search?q=%s
