@@ -52,6 +52,8 @@
 
 ## [Gemini](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/gemini-search-engine.user.js)
 
+## [Perplexity](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/perplexity-repeat-signup.user.js)
+
 ## [URLvoid](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/urlvoid-link-search.user.js)
 
 ## [SearchEngineList](https://www.github.com/alphaxleonidas/Scripts/tree/main/searchenginelist.md)
