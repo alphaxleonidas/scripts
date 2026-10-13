@@ -13,21 +13,21 @@
 
   const REPEAT_MESSAGES = new Set([
     "Sign up and repeat your request.",
-    "Registra't i repeteix la teva sol·licitud."
-    "Kaydolun ve isteğinizi tekrar edin."
-    "Regístrese y repita su solicitud."
-    "Inscrivez-vous et répétez votre demande."
-    "Registrieren Sie sich und wiederholen Sie Ihre Anfrage."
-    "Registrati e ripeti la tua richiesta."
-    "Registre-se e repita sua solicitação."
-    "Зарегистрируйтесь и повторите свой запрос."
-    "请注册并重新提交您的请求。"
-    "サインアップして、リクエストをもう一度お送りください"
-    "회원가입 후 요청을 다시 보내주세요."
-    "سجّل ثم أعد إرسال طلبك."
-    "साइन अप करें और अपना अनुरोध दोबारा भेजें।"
-    "Meld u aan en herhaal uw verzoek."
-    "Zarejestruj się i powtórz swoją prośbę."
+    "Registra't i repeteix la teva sol·licitud.",
+    "Kaydolun ve isteğinizi tekrar edin.",
+    "Regístrese y repita su solicitud.",
+    "Inscrivez-vous et répétez votre demande.",
+    "Registrieren Sie sich und wiederholen Sie Ihre Anfrage.",
+    "Registrati e ripeti la tua richiesta.",
+    "Registre-se e repita sua solicitação.",
+    "Зарегистрируйтесь и повторите свой запрос.",
+    "请注册并重新提交您的请求。",
+    "サインアップして、リクエストをもう一度お送りください",
+    "회원가입 후 요청을 다시 보내주세요.",
+    "سجّل ثم أعد إرسال طلبك.",
+    "साइन अप करें और अपना अनुरोध दोबारा भेजें।",
+    "Meld u aan en herhaal uw verzoek.",
+    "Zarejestruj się i powtórz swoją prośbę.",
     "Зареєструйтеся та повторіть свій запит."
   ]);
 
