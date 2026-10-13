@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Perplexity Repeat Sign-Up Request
 // @namespace    local
-// @version      1.6.1
+// @version      1.6.1.1
 // @description  Repeats the previous request when the latest final response is a sign-up message.
 // @match        https://www.perplexity.ai/*
 // @run-at       document-idle
