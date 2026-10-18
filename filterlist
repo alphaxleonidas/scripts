@@ -1,0 +1,82 @@
+! ===== uBlock Origin — Combined Custom Filters =====
+
+! ---------- Copilot ----------
+copilot.microsoft.com##.text-xs.text-foreground-550
+copilot.microsoft.com##.dark\:bg-black\/10.shadow-xs.p-4.bg-white\/10.rounded-2xl.gap-2\.5.items-center.flex-row.max-w-md.flex.relative
+
+! ---------- Medium ----------
+ahtishamdogar.medium.com##.e.wh.wg.wf.we.wd
+
+! ---------- Urlebird ----------
+urlebird.com##.video-overlay-aads-frame
+urlebird.com###video-overlay-aads-close
+
+! ---------- Facebook ----------
+www.facebook.com##.x1egiwwb.xwjw6zi.x10wlt62.x6ikm8r
+www.facebook.com##.xg6iff7.x1c4vz4f.xl56j7k.xdt5ytf.x78zum5.x9f619.x1qjc9v5.__fb-light-mode
+www.facebook.com##.x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5 > .x1jfb8zj.x1qrby5j.x1n2onr6.x7ja8zs.x1t2pt76.x1lytzrv.xedcshv.xarpa2k.x3igimt.x12ejxvf.xaigb6o.x1beo9mf.x1h91t0o.x4k7w5x.x1uvtmcs
+www.facebook.com##.x1h0vfkc.x13vifvy.xixxii4.x1o0tod.xtijo5x.x1ey2m1c
+www.facebook.com##.x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5
+www.facebook.com##.x2b8uid.xzsf02u.x1xlr1w8.x1qb5hxa.xngnso2.xw06pyt.xudqn12.x1943h6x.x1fgarty.x1cpjm7i.x1gmr53x.xhkezso.x1s928wv.x1lliihq.x10flsy6.x1vvkbs.x13faqbe.xeuugli.x193iq5w
+www.facebook.com##.xejc82c.x8hos8a.x1cnzs8.x6s0dn4.xifccgj.x4cne27.xw01apr.x1ws5yxj.x18d9i69.x1g0dm76.xpdmqnj.x1q0g3np.xozqiw3.xl56j7k.x1n2onr6.x2lah0s.x78zum5.x1ja2u2z.x9f619
+www.facebook.com##.x1u8a7rm.x8hos8a.xixxii4.x1g0dm76.x1s14bel.xpdmqnj.x1xy6bms.x1o0tod.xtijo5x.x9f619.xayqjjm.x1ey2m1c.x2bj2ny.x193iq5w.x2lah0s.xdt5ytf.x78zum5
+www.facebook.com##.bottom.fixed-container.m
+
+! ---------- Instagram ----------
+www.instagram.com##.xluoswm.xkyogvf.x1p52sp3.x51soum.xyk3r29.xggnzti.x11y6td3.x11ajlmh.xvrrbal.x5fp0pe.x1odjw0f.xw2csxc.xb88tzc.x7r02ix
+www.instagram.com##.x1jfb8zj.x1qrby5j.x1n2onr6.x7ja8zs.x1t2pt76.x1lytzrv.xedcshv.xarpa2k.x3igimt.x12ejxvf.xaigb6o.x1beo9mf.x1h91t0o.x4k7w5x.x1uvtmcs > .xl56j7k.x1iyjqo2.xdt5ytf.x78zum5.x9f619.x1qjc9v5
+www.instagram.com##.x1jfb8zj.x1qrby5j.x1n2onr6.x7ja8zs.x1t2pt76.x1lytzrv.xedcshv.xarpa2k.x3igimt.x12ejxvf.xaigb6o.x1beo9mf.x1h91t0o.x4k7w5x.x1uvtmcs
+www.instagram.com##.x1ja2u2z.x1n2onr6.x9f619 > .x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5 > .x1h0vfkc.x13vifvy.xixxii4.x1o0tod.xtijo5x.x1ey2m1c
+www.instagram.com##.x1ja2u2z.x1n2onr6.x9f619 > .x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5
+www.instagram.com###scrollview > .x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5 > .x1h0vfkc.x13vifvy.xixxii4.x1o0tod.xtijo5x.x1ey2m1c
+www.instagram.com###scrollview > .x1n2onr6.xippug5.xg6iff7.xdt5ytf.x78zum5
+www.instagram.com##.xzkaem6.x1n2onr6 > .xjx87ck.x1yqm8si.xfk6m8.xh8yej3.x13vifvy.x1rohswg.xixxii4.x1odjw0f.xw2csxc.x1o0tod.x5yr21d.x1pq812k.x1ja2u2z.x9f619
+www.instagram.com##.x1h0vfkc.x13vifvy.xixxii4.x1o0tod.xtijo5x.x1ey2m1c
+
+! ---------- TikTok ----------
+www.tiktok.com##.video-details__banner-ads
+
+! ---------- Reddit ----------
+www.reddit.com##.p-lg.justify-center.items-center.flex-col.w-1\/2.flex
+www.reddit.com##.w-\[720px\].min-h-\[480px\].flex
+www.reddit.com###desktop-dynamic-upsell-dialog
+
+! ---------- Outlook ----------
+outlook.live.com##.LBktY > .GssDD > .z0duZ
+outlook.live.com##.LBktY > .GssDD
+
+! ---------- Brave Search ----------
+search.brave.com##.svelte-17pwp0o.ask-history-info
+
+! ---------- Metacritic ----------
+www.metacritic.com##.bt-sw-modal
+www.metacritic.com##.bt-sw-container
+
+! ---------- Gemini ----------
+gemini.google.com##.ng-star-inserted.gem-banner-container
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c4244309561-2
+
+! ---------- ChatGPT ----------
+chatgpt.com##.leading-none.text-sm.dark-oled\:text-token-text-tertiary.text-token-text-secondary.pointer-events-auto
+chatgpt.com##.md\:gap-8.md\:justify-between.md\:items-center.md\:flex-row.flex-col.grow.flex > div.flex-col.flex > div
+chatgpt.com##.dark\:bg-token-main-surface-secondary.text-token-text-primary.bg-token-main-surface-primary.border-token-border-default.md\:items-center.shadow-xxs.dark\:border-transparent.lg\:mx-auto.\[text-wrap\:pretty\].text-sm.pe-3.ps-5.py-4.border.rounded-3xl.gap-4.items-start.w-full.flex
+chatgpt.com##.pointer-events-auto.dark-oled\:text-token-text-tertiary.text-token-text-secondary > div
+chatgpt.com##.text-wrap.text-sm.mb-6
+chatgpt.com##.pt-10.sm\:max-w-\[388px\].max-w-\[373px\].overflow-hidden.focus\:outline-hidden.flex-col.flex.shadow-long.rounded-2xl.rtl\:translate-x-1\/2.ltr\:-translate-x-1\/2.start-1\/2.text-start.w-full.h-full.row-start-2.row-auto.col-start-2.col-auto.relative.bg-token-bg-primary.popover
+chatgpt.com##.before\:starting\:opacity-0.dark\:before\:bg-black\/50.not-motion-reduce\:before\:duration-250.not-motion-reduce\:before\:transition.before\:backdrop-blur-\[1px\].before\:bg-gray-200\/50.before\:inset-0.before\:absolute.before\:starting\:backdrop-blur-0.z-50.inset-0.fixed
+
+! ---------- Perplexity ----------
+www.perplexity.ai##.md\:pb-lg.md\:pt-lg.justify-center.flex-col.flex.grow.p-md
+www.perplexity.ai##.flex-col.flex.divide-subtlest.ring-subtlest.border-subtlest.border-t.w-screen.md\:grow-\[unset\].md\:w-\[unset\].rounded-none.grow.h-full
+www.perplexity.ai##.flex-col.flex.h-\[100dvh\].md\:h-screen.w-screen.backdrop-blur-sm.bg-backdrop.bg-none.fill-mode-both.scrollbar-subtle.overflow-y-auto.shadow-md
+www.perplexity.ai##.justify-center.items-center.flex.overflow-y-auto.inset-0.fixed
+www.perplexity.ai##.backdrop-blur-sm.duration-200.ease-outExpo.fade-in.animate-in.bg-backdrop.inset-0.fixed.fill-mode-both.md\:items-center.items-stretch
+www.perplexity.ai##.backdrop-blur-md.duration-200.ease-outExpo.fade-in.animate-in.bg-lightbox\/95.inset-0.fixed.fill-mode-both.md\:items-center.items-stretch
+www.perplexity.ai##.md\:pb-lg.md\:pt-lg.justify-end.flex-col.flex.grow.p-md > div
+www.perplexity.ai##.duration-100.ease-in.fade-in.animate-in.right-0.left-0.bottom-0.fixed.flex-col.md\:max-h-\[96vh\].h-\[100dvh\].w-screen.justify-end.items-center.flex.to-transparent.from-60\%.from-base.bg-gradient-to-t.fill-mode-both.scrollbar-subtle.overflow-y-auto.shadow-md
+www.perplexity.ai##.p-md.rounded-lg.bg-base.divide-subtlest.ring-subtlest.border-subtlest.md\:left-auto.pointer-events-auto.shadow-sm.border.max-w-md.z-\[2000\].fixed.inset-x-sm.bottom-sm
+www.perplexity.ai##.flex-col.flex.\[\:where\(\&\>\:not\(\[hidden\]\)\~\:not\(\[hidden\]\)\)\]\:border-soft.ring-soft.border-soft.w-screen.md\:grow-\[unset\].md\:w-\[unset\].rounded-none.grow.h-full
+www.perplexity.ai##.backdrop-blur-xs.duration-200.ease-outExpo.fade-in.animate-in.bg-backdrop.inset-0.fixed.fill-mode-both.md\:items-center.items-stretch
+www.perplexity.ai##.duration-100.ease-in.fade-in.animate-in.right-0.left-0.bottom-0.fixed.flex-col.md\:max-h-\[96vh\].h-\[100dvh\].w-screen.justify-end.items-center.flex.to-transparent.from-60\%.from-base.bg-linear-to-t.fill-mode-both.overflow-y-auto.shadow-md
+www.perplexity.ai##.rounded-xl.bg-raised.\[\:where\(\&\>\:not\(\[hidden\]\)\~\:not\(\[hidden\]\)\)\]\:border-soft.ring-soft.border-soft.ease-out.duration-300.shadow-md.fade-in.animate-in.py-8.px-4
+www.perplexity.ai##.gap-2.items-center.flex-col.flex.bg-raised.shadow-md.forced-colors\:border-\[CanvasText\].forced-colors\:border.rounded-2xl.mb-4.md\:flex-row.w-full.relative.md\:gap-4.p-4.group
