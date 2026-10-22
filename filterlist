@@ -55,6 +55,25 @@ www.metacritic.com##.bt-sw-container
 ! ---------- Gemini ----------
 gemini.google.com##.ng-star-inserted.gem-banner-container
 gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c4244309561-2
+! Added October 2026
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c54156702-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c54156702-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c623006993-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2449053669-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2449053669-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c911763119-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c911763119-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2076782557-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2076782557-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c998736877-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c3168699614-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c3168699614-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c1424807116-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2428457448-3
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2428457448-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c313641666-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c966490618-2
+gemini.google.com##.ng-star-inserted.lm-theme.ng-tns-c2132388412-2
 
 ! ---------- ChatGPT ----------
 chatgpt.com##.leading-none.text-sm.dark-oled\:text-token-text-tertiary.text-token-text-secondary.pointer-events-auto
@@ -64,6 +83,11 @@ chatgpt.com##.pointer-events-auto.dark-oled\:text-token-text-tertiary.text-token
 chatgpt.com##.text-wrap.text-sm.mb-6
 chatgpt.com##.pt-10.sm\:max-w-\[388px\].max-w-\[373px\].overflow-hidden.focus\:outline-hidden.flex-col.flex.shadow-long.rounded-2xl.rtl\:translate-x-1\/2.ltr\:-translate-x-1\/2.start-1\/2.text-start.w-full.h-full.row-start-2.row-auto.col-start-2.col-auto.relative.bg-token-bg-primary.popover
 chatgpt.com##.before\:starting\:opacity-0.dark\:before\:bg-black\/50.not-motion-reduce\:before\:duration-250.not-motion-reduce\:before\:transition.before\:backdrop-blur-\[1px\].before\:bg-gray-200\/50.before\:inset-0.before\:absolute.before\:starting\:backdrop-blur-0.z-50.inset-0.fixed
+! Added October 2026
+chatgpt.com##.xioohks.x8hofv0.xzyxkq6.x142x9wm.x1e2vg5v.xl56j7k.x4iywdk.x11t45mb.x1k046mz.xdt5ytf.xo2ubr0.x1qjc9v5.xfqlf79.x1m637zm.xe4fvub.x78zum5.xbs2zpe.xaiw7ct.xmkeg23.x1y0btm7.x1j6x5gx.xlac9o8.x1d5dutw
+chatgpt.com##.x13oi3eq.xmkeg23.x1y0btm7.x3fmiap.xlac9o8.xo57heo.x10br76f.x1a6c18u.x18360iy.xrvj5dj.xbs2zpe
+chatgpt.com##.x1w2vvpw.xidrzzu.xwgcxoh.x1b2iylo.x2b8uid.xnjsko4.xqc0jnf.x26vrf4.xvueqy4.x10im51j.xj65w1f.x1woxq5q.xl2ypbo.xmw94ff.xrnau4j.xh8yej3.x1a5r0i6.x1phugxf.x1udaksz.xth0x3u.xcs09ch.xtcsvct.x1glsy7n.x9onut.x13yhu5o > .xj65w1f.x1woxq5q.xl2ypbo.x1phugxf.x1udaksz.xth0x3u.xcs09ch.xtcsvct
+chatgpt.com##.xhtitgo.x7wzq59.x186rc58.xh8yej3.x7fd4wk > div > .x1w2vvpw.xidrzzu.xwgcxoh.x1b2iylo.x2b8uid.xnjsko4.xqc0jnf.x26vrf4.xvueqy4.x10im51j.xj65w1f.x1woxq5q.xl2ypbo.xmw94ff.xrnau4j.xh8yej3.x1a5r0i6.x1phugxf.x1udaksz.xth0x3u.xcs09ch.xtcsvct.x1glsy7n.x13yhu5o > .xj65w1f.x1woxq5q.xl2ypbo.x1phugxf.x1udaksz.xth0x3u.xcs09ch.xtcsvct
 
 ! ---------- Perplexity ----------
 www.perplexity.ai##.md\:pb-lg.md\:pt-lg.justify-center.flex-col.flex.grow.p-md
@@ -80,3 +104,6 @@ www.perplexity.ai##.backdrop-blur-xs.duration-200.ease-outExpo.fade-in.animate-i
 www.perplexity.ai##.duration-100.ease-in.fade-in.animate-in.right-0.left-0.bottom-0.fixed.flex-col.md\:max-h-\[96vh\].h-\[100dvh\].w-screen.justify-end.items-center.flex.to-transparent.from-60\%.from-base.bg-linear-to-t.fill-mode-both.overflow-y-auto.shadow-md
 www.perplexity.ai##.rounded-xl.bg-raised.\[\:where\(\&\>\:not\(\[hidden\]\)\~\:not\(\[hidden\]\)\)\]\:border-soft.ring-soft.border-soft.ease-out.duration-300.shadow-md.fade-in.animate-in.py-8.px-4
 www.perplexity.ai##.gap-2.items-center.flex-col.flex.bg-raised.shadow-md.forced-colors\:border-\[CanvasText\].forced-colors\:border.rounded-2xl.mb-4.md\:flex-row.w-full.relative.md\:gap-4.p-4.group
+! Added October 2026
+www.perplexity.ai##.md\:block.w-\[300px\].hidden.fixed.right-4.bottom-4
+www.perplexity.ai##.duration-100.ease-in.fade-in.animate-in.right-0.left-0.bottom-0.fixed.flex-col.md\:max-h-\[96vh\].h-\[100dvh\].w-screen.justify-end.items-center.flex.to-transparent.from-60\%.from-base.bg-linear-to-t.fill-mode-both.scrollbar-subtle.overflow-y-auto.shadow-md
