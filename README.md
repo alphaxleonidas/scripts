@@ -23,6 +23,8 @@
 # Browser Tweaks
 
 
+## [VirusTotal Autoexpand](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/vt-autoexpand.user.js)
+
 ## [Discord Link Scanner](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/discord-link-scanner.user.js)
 
 ## [Multi Line Search YouTube](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js) 
