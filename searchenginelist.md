@@ -41,9 +41,9 @@ https://copilot.microsoft.com/?q=%s
 ```
 https://youglish.com/pronounce/%s/english
 ```
-## OpenXNG
+## OpnXNG
 ```
-https://www.openxng.com/search?q=%s
+https://www.opnxng.com/search?q=%s
 ```
 ## Epic Games Store
 ```
