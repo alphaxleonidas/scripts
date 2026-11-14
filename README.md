@@ -29,6 +29,8 @@
 
 ## [Multi Line Search YouTube](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/multi-line-search.user.js) 
 
+## [Steam Scroll Fix](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steam-scroll-fix.user.js)
+
 <!--
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 -->
