@@ -54,6 +54,8 @@
 
 ## [Turbo Subscription Button Remover](https://raw.githubusercontent.com/mirbyte/TwitchTV-Userscripts/main/Turbo%20Subscription%20Button%20Remover.js#.user.js)
 
+## [Twitch Scroll Fix](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/twitch-scroll-fix.user.js)
+
 # Search Engines Scripts
 
 ## [Chatgpt](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/chatgpt-search-engine.user.js)
