@@ -33,6 +33,8 @@
 
 ## [Steam Requirements Autoexpand](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steam-requirements-autoexpand.user.js)
 
+## [Steam Autoexpand About](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steam-autoexpand-about.user.js)
+
 <!--
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 -->
