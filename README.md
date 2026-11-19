@@ -31,6 +31,8 @@
 
 ## [Steam Scroll Fix](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steam-scroll-fix.user.js)
 
+## [Steam Requirements Autoexpand](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/steam-requirements-autoexpand.user.js)
+
 <!--
 ## [Dark Octotree](https://github.com/alphaxleonidas/Scripts/raw/refs/heads/main/octotree-dark.user.js[)
 -->
