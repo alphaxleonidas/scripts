@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Perplexity Repeat Sign-Up Request
 // @namespace    local
-// @version      2.0.0
+// @version      2.0.1
 // @description  Automatically repeats the previous request when Perplexity returns a sign-up message.
 // @match        https://www.perplexity.ai/*
 // @run-at       document-idle
@@ -13,6 +13,7 @@
 
   const REPEAT_MESSAGES = new Set([
     "Sign up and repeat your request.",
+    "Registreeru ja esita oma päring uuesti.",
     "Regístrate y repite tu solicitud.",
     "Inscrivez-vous et répétez votre demande.",
     "Melde dich an und wiederhole deine Anfrage.",
